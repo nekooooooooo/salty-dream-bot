@@ -7,7 +7,7 @@ dotenv.load_dotenv()
 
 URL = os.getenv('URL')
 
-async def show_progress():
+async def interrupt():
     async with aiohttp.ClientSession() as cs:
-        async with cs.get(f"{URL}/sdapi/v1/progress") as result:
-            return result.json()
+        async with cs.post(f"{URL}/sdapi/v1/interrupt") as result:
+            print("Interrupted!")

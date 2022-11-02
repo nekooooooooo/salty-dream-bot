@@ -6,24 +6,25 @@ import time
 import io, base64
 import json
 import discord
-import aiohttp
 from discord.ui import Button, View
 from discord.ext import commands
 from modules import generate_image as webui
 from modules import data as var
-from modules import extras
+from modules import extras, interrupt
 
-with open('data/config.yaml', 'r', encoding="UTF-8") as stream:
-    config = yaml.safe_load(stream)
+# with open('data/config.yaml', 'r', encoding="UTF-8") as stream:
+#     config = yaml.safe_load(stream)
 
 intents = discord.Intents.default()
 intents.message_content = True
 
 dotenv.load_dotenv()
-bot = commands.Bot(
-    command_prefix=config['prefix'],
-    owner_id=config['owner_id']
-    )
+# bot = commands.Bot(
+#     command_prefix=config['prefix'],
+#     owner_id=config['owner_id']
+#     )
+bot = commands.Bot()
+
 
 @bot.event
 async def on_ready():
@@ -67,27 +68,21 @@ async def dream(
             default=-1
         )
     ):
-
+    
     await ctx.response.defer()
-    await ctx.followup.send(f"Generating ``{prompt}``...")
 
     dimensions = var.sizes[size]['dimensions']
     ratio_width = var.compositions[composition]['ratio_width']
     ratio_height = var.compositions[composition]['ratio_height']
 
-    image, imageWidth, imageHeight, imageSeed, elapsedTime = await get_image(ctx, prompt, neg_prompt, composition, dimensions, ratio_width, ratio_height, seed)
-
-    print("Image Generated!")
-    print(f"Elapsed Time: {elapsedTime:.2f} second/s")
-
-    embed = output_embed(prompt, imageWidth, imageHeight, imageSeed, elapsedTime)
+    image, embed = await generate_image(ctx, prompt, neg_prompt, composition, dimensions, ratio_width, ratio_height, seed)
 
     upscale_2x_button = Button(label="Upscale 2x", style=discord.ButtonStyle.secondary)
     upscale_4x_button = Button(label="Upscale 4x", style=discord.ButtonStyle.secondary)
-    regenerate        = Button(                    style=discord.ButtonStyle.secondary, emoji="🔄")
-    save              = Button(                    style=discord.ButtonStyle.secondary, emoji="💾")
+    regenerate_button = Button(                    style=discord.ButtonStyle.secondary, emoji="🔄")
+    save_button       = Button(                    style=discord.ButtonStyle.secondary, emoji="💾")
 
-    view = View(upscale_2x_button, upscale_4x_button, regenerate)
+    view = View(upscale_2x_button, upscale_4x_button, regenerate_button, save_button)
 
     async def upscale_2x_button_callback(interaction):
         extras.upscale(image, 2)
@@ -99,16 +94,12 @@ async def dream(
 
     async def regeneration_callback(interaction):
         await interaction.response.defer()
-        await interaction.followup.send(f"Generating ``{prompt}``...")
-        image, imageWidth, imageHeight, imageSeed, elapsedTime = await get_image(ctx, prompt, composition, dimensions, ratio_width, ratio_height, seed)
-        print("Image Generated!")
-        print(f"Elapsed Time: {elapsedTime:.2f} second/s")
-        embed = output_embed(prompt, imageWidth, imageHeight, imageSeed, elapsedTime)
+        image, embed = await generate_image(ctx, prompt, neg_prompt, composition, dimensions, ratio_width, ratio_height, seed)
         await interaction.followup.send(embed=embed, file=image, view=view)
 
     upscale_2x_button.callback = upscale_2x_button_callback
     upscale_4x_button.callback = upscale_4x_button_callback
-    regenerate.callback = regeneration_callback
+    regenerate_button.callback = regeneration_callback
 
     await ctx.followup.send(embed=embed, file=image, view=view)
 
@@ -119,10 +110,33 @@ async def dream(
 #     else:
 #         raise error
 
+async def generate_image(ctx, prompt, neg_prompt, composition, dimensions, ratio_width, ratio_height, seed):
+
+    # any user can interrupt right now
+    # TODO move interrupt button view into subclass then override interraction check
+    interrupt_button = Button(label="Interrupt", style=discord.ButtonStyle.secondary, emoji="❌")
+
+    async def interrupt_button_callback(interaction):
+        await interrupt.interrupt()
+        await interaction.response.send_message("Interrupted...")
+
+    interrupt_button.callback = interrupt_button_callback
+    await ctx.followup.send(f"Generating ``{prompt}``...", view=View(interrupt_button))
+
+    image, imageWidth, imageHeight, imageSeed, elapsedTime = await get_image(ctx, prompt, neg_prompt, composition, dimensions, ratio_width, ratio_height, seed)
+
+    print("Image Generated!")
+    print(f"Elapsed Time: {elapsedTime:.2f} second/s")
+
+    embed = output_embed(prompt, imageWidth, imageHeight, imageSeed, elapsedTime)
+
+    return image, embed
+
 async def get_image_values(output):
     image64 = output["images"][0]
     image64 = image64.replace("data:image/png;base64,", "")
 
+    # save image base64 string into text file
     # with open("data/image.txt", "w") as text_file:
     #         text_file.write(image64)
 
@@ -130,7 +144,10 @@ async def get_image_values(output):
 
     imageWidth = imageInfo["width"]
     imageHeight = imageInfo["height"]
+
+    # regex for getting image seed from old api
     # imageSeed = re.search(r"(\bSeed:\s+)(\S[^,]+)", imageInfo)
+    
     imageSeed = imageInfo["seed"]
 
     return image64, imageWidth, imageHeight, imageSeed
@@ -183,6 +200,9 @@ def error_embed(text):
     )
     return embed
 
+@bot.event
+async def on_guild_join(guild):
+    print(f'Joined {guild.name}!')
 
 def main():
     print("Running bot...")

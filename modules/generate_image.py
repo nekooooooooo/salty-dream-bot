@@ -1,8 +1,8 @@
-import requests
 import json
 import os
 import dotenv
 import aiohttp
+from modules import progress
 
 dotenv.load_dotenv()
 
@@ -28,8 +28,8 @@ async def generate_image(ctx, prompt, neg_prompt, width: int, height: int, seed:
     }
 
     async with aiohttp.ClientSession() as cs:
-        async with cs.post(f"{URL}sdapi/v1/txt2img", headers=headers, data=data) as r:
-            print(r.status)
+        async with cs.post(f"{URL}/sdapi/v1/txt2img", headers=headers, data=data) as r:
+            # print(r.status)
             res = await r.json()
             return res
 
