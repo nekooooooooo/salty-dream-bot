@@ -1,5 +1,5 @@
 # Salty Dream Bot
-An simple, unoptimized locally run Stable Diffusion discord bot
+A simple, unoptimized locally run Stable Diffusion discord bot
 
 <img src="https://raw.githubusercontent.com/nekooooooooo/nekooooooooo.github.io/master/pics/preview_dream_bot.png">
 
@@ -39,27 +39,32 @@ NEGATIVEPROMPT = default negative prompt for generations
 
 ## To Do
 
--   [ ] Refactor code
--   -   [ ] Subclasses
--   -   [ ] Cogs
--   [ ] Remove test code comments
--   [ ] Add comments for better code readability (mostly for myself)
--   [ ] Optimize code
--   [ ] Queues
--   [ ] Per-server config
--   [ ] Save prompts into styles
--   [ ] Extras
--   -   [ ] Upscaling
--   [ ] Model/checkpoint swapping
--   [ ] Hypernetwork swapping
--   -   [ ] Hypernetwork strenght
--   [ ] img2img
--   [ ] PNG info
--   [ ] Display progress
--   [ ] Interrupt
--   [ ] Interrogate/DeepDanbooru
--   [ ] Locally save images
--   [ ] Optional custom width/height
--   [ ] Stats command
--   [ ] AIO setup/run
--   [ ] Error handling
+- [ ] Refactor code
+    - [ ] Subclasses
+    - [ ] Cogs
+- [ ] Remove test code comments
+- [ ] Add comments for better code readability (mostly for myself)
+- [ ] Optimize code
+- [ ] Per-server config
+- [ ] Save prompts into styles
+- [ ] Extras
+    - [ ] Upscaling
+- [ ] Model/checkpoint swapping
+    - [ ] Hypernetwork swapping
+        - [ ] Hypernetwork strenght
+- [ ] Interrogate/DeepDanbooru
+- [ ] Locally save images
+- [ ] Optional custom width/height
+- [ ] Stats command
+- [ ] AIO setup/run
+
+
+### In progress
+- [ ] Queues
+- [ ] Error handling
+- [ ] PNG info
+- [ ] Display progress
+- [ ] img2img
+- [ ] Interrupt
+
+### Completed
