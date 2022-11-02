@@ -6,6 +6,8 @@ A simple, unoptimized locally run Stable Diffusion discord bot
 This was mostly made for my friend's private server.
 I won't be maintaining this repo that much (like most of my repos) but I'll try my best to finish everything on the [to do](#to-do) list
 
+I recommend using [Kilvoctu's Aiya Bot](https://github.com/Kilvoctu/aiyabot) instead. It has better implementation of Automatic1111's WebUI API and more features that I have yet to add on mine
+
 ## Setup
 
 - Set up [AUTOMATIC1111's Stable Diffusion WebUI](https://github.com/AUTOMATIC1111/stable-diffusion-webui)
