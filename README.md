@@ -47,7 +47,6 @@ NEGATIVEPROMPT = default negative prompt for generations
     - [ ] Subclasses
     - [ ] Cogs
 - [ ] Remove test code comments
-- [ ] Add comments for better code readability (mostly for myself)
 - [ ] Optimize code
 - [ ] Per-server config
 - [ ] Save prompts into styles
@@ -69,6 +68,8 @@ NEGATIVEPROMPT = default negative prompt for generations
 - [ ] PNG info
 - [ ] Display progress
 - [ ] img2img
-- [ ] Interrupt
+- [x] Interrupt
+    - [ ] Only author can interrupt
+- [ ] Add comments for better code readability (mostly for myself)
 
 ### Completed
