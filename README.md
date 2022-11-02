@@ -11,7 +11,7 @@ I won't be maintaining this repo that much (like most of my repos) but I'll try 
 - Set up [AUTOMATIC1111's Stable Diffusion WebUI](https://github.com/AUTOMATIC1111/stable-diffusion-webui)
 - Run the Web UI with the api command line argument inside (`COMMANDLINE_ARGS=--api`)
 - Clone this repository
-- Create a text file inside the repo ".env"
+- Create a .env inside the repo
 
 ```dotenv
 # .env
