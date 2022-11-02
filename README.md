@@ -1,3 +1,5 @@
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/py-cord?style=for-the-badge) ![GitHub last commit](https://img.shields.io/github/last-commit/nekooooooooo/salty-dream-bot?style=for-the-badge)
+
 # Salty Dream Bot
 A simple, unoptimized locally run Stable Diffusion discord bot
 
