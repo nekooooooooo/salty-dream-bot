@@ -31,6 +31,7 @@ async def on_ready():
     print(f"{bot.user} is ready and online!")
     print(f"Stable Diffusion x AUTOMATIC1111")
 
+# TODO put commands into cogs
 @bot.slash_command(name = "dream", description = "Generate Image")
 async def dream(
         ctx: discord.Interaction,
@@ -47,10 +48,10 @@ async def dream(
             required=False,
             default=""
         ),
-        composition: discord.commands.Option(
+        orientation: discord.commands.Option(
             str,
             "Composition of the image",
-            choices=var.compositions,
+            choices=var.orientation,
             required=False,
             default="square"
         ),
@@ -71,17 +72,19 @@ async def dream(
     
     await ctx.response.defer()
 
+    # get dimensions and ratio from variables.py dictionaries (need to find a better way to store these values)
     dimensions = var.sizes[size]['dimensions']
-    ratio_width = var.compositions[composition]['ratio_width']
-    ratio_height = var.compositions[composition]['ratio_height']
+    ratio_width = var.orientation[orientation]['ratio_width']
+    ratio_height = var.orientation[orientation]['ratio_height']
 
-    image, embed = await generate_image(ctx, prompt, neg_prompt, composition, dimensions, ratio_width, ratio_height, seed)
+    image, embed = await generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed)
 
     upscale_2x_button = Button(label="Upscale 2x", style=discord.ButtonStyle.secondary)
     upscale_4x_button = Button(label="Upscale 4x", style=discord.ButtonStyle.secondary)
     regenerate_button = Button(                    style=discord.ButtonStyle.secondary, emoji="🔄")
     save_button       = Button(                    style=discord.ButtonStyle.secondary, emoji="💾")
 
+    # TODO subclass views and buttons
     view = View(upscale_2x_button, upscale_4x_button, regenerate_button, save_button)
 
     async def upscale_2x_button_callback(interaction):
@@ -94,7 +97,7 @@ async def dream(
 
     async def regeneration_callback(interaction):
         await interaction.response.defer()
-        image, embed = await generate_image(ctx, prompt, neg_prompt, composition, dimensions, ratio_width, ratio_height, seed)
+        image, embed = await generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed)
         await interaction.followup.send(embed=embed, file=image, view=view)
 
     upscale_2x_button.callback = upscale_2x_button_callback
@@ -110,7 +113,7 @@ async def dream(
 #     else:
 #         raise error
 
-async def generate_image(ctx, prompt, neg_prompt, composition, dimensions, ratio_width, ratio_height, seed):
+async def generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed):
 
     # any user can interrupt right now
     # TODO move interrupt button view into subclass then override interraction check
@@ -123,7 +126,7 @@ async def generate_image(ctx, prompt, neg_prompt, composition, dimensions, ratio
     interrupt_button.callback = interrupt_button_callback
     await ctx.followup.send(f"Generating ``{prompt}``...", view=View(interrupt_button))
 
-    image, imageWidth, imageHeight, imageSeed, elapsedTime = await get_image(ctx, prompt, neg_prompt, composition, dimensions, ratio_width, ratio_height, seed)
+    image, imageWidth, imageHeight, imageSeed, elapsedTime = await get_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed)
 
     print("Image Generated!")
     print(f"Elapsed Time: {elapsedTime:.2f} second/s")
@@ -152,8 +155,10 @@ async def get_image_values(output):
 
     return image64, imageWidth, imageHeight, imageSeed
 
-async def get_image(ctx, prompt, neg_prompt, composition, dimensions, ratio_width, ratio_height, seed):
+async def get_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed):
     start = time.time()
+
+    # calculate image width and height based on selected dimensions and orientation
     width = dimensions * ratio_width
     height = dimensions * ratio_height
 
@@ -161,7 +166,7 @@ async def get_image(ctx, prompt, neg_prompt, composition, dimensions, ratio_widt
         Generating Image
         Prompt: {prompt}
         Negative Prompt: {neg_prompt}
-        Composition: {composition} ({width} x  {height})
+        Composition: {orientation} ({width} x  {height})
         Seed: {seed}
     """
     print(log_message)
@@ -170,11 +175,13 @@ async def get_image(ctx, prompt, neg_prompt, composition, dimensions, ratio_widt
 
     image64, imageWidth, imageHeight, imageSeed = await get_image_values(output)
 
-    decoded = io.BytesIO(base64.b64decode(image64))
+    # decode image from base64
+    decoded_image = io.BytesIO(base64.b64decode(image64))
+
+    # remove special characters for filename
     filename = re.sub(r'[\\/*?:"<>|]',"",prompt)
-    # filename = filename.replace(" ", "_")
     filename = f"{filename[:200]}_{imageSeed}"
-    image = discord.File(decoded, filename=f"{filename}.png")
+    image = discord.File(decoded_image, filename=f"{filename}.png")
 
     end = time.time()
     elapsedTime = end - start
@@ -182,7 +189,7 @@ async def get_image(ctx, prompt, neg_prompt, composition, dimensions, ratio_widt
 
 def output_embed(prompt, imageWidth, imageHeight, imageSeed, elapsedTime):
     embed = discord.Embed(
-        color=discord.Colour.orange(),
+        color=discord.Colour.random(),
     )
     embed.add_field(name="📋 Prompt",       value=f"```{prompt}```",                     inline=False)
     embed.add_field(name="📐 Size",         value=f"```{imageWidth} x {imageHeight}```", inline=True)

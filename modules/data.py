@@ -1,6 +1,6 @@
 errorMsg = "No connection could be made to AUTOMATIC1111 Stable Diffusion WebUI backend. WebUI might be turned off."
 
-compositions = {
+orientation = {
     "square":{
         "ratio_width":1,
         "ratio_height":1
