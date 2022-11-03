@@ -135,7 +135,7 @@ async def generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio
 
     return image, embed
 
-async def get_image_values(output):
+async def get_image_info(output):
     image64 = output["images"][0]
     image64 = image64.replace("data:image/png;base64,", "")
 
@@ -173,7 +173,8 @@ async def get_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_widt
 
     output = await webui.generate_image(ctx, prompt, neg_prompt, width, height, seed)
 
-    image64, imageWidth, imageHeight, imageSeed = await get_image_values(output)
+    # get generated image and related info from api request 
+    image64, imageWidth, imageHeight, imageSeed = await get_image_info(output)
 
     # decode image from base64
     decoded_image = io.BytesIO(base64.b64decode(image64))
