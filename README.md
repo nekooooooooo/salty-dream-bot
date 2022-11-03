@@ -56,20 +56,20 @@ NEGATIVEPROMPT = default negative prompt for generations
     - [ ] Hypernetwork swapping
         - [ ] Hypernetwork strenght
 - [ ] Interrogate/DeepDanbooru
-- [ ] Locally save images
 - [ ] Optional custom width/height
 - [ ] Stats command
 - [ ] AIO setup/run
 
 
-### In progress
+### In progress (ordered by priority)
+- [ ] Add comments for better code readability (mostly for myself)
+- [ ] Locally save images
 - [ ] Queues
 - [ ] Error handling
 - [ ] PNG info
-- [ ] Display progress
 - [ ] img2img
+- [ ] Display progress
 - [x] Interrupt
     - [ ] Only author can interrupt
-- [ ] Add comments for better code readability (mostly for myself)
 
 ### Completed
