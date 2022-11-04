@@ -65,6 +65,7 @@ NEGATIVEPROMPT = default negative prompt for generations
 - [ ] Add comments for better code readability (mostly for myself)
 - [ ] Locally save images
 - [ ] Queues
+- [ ] Add restore faces option
 - [ ] Error handling
 - [ ] PNG info
 - [ ] img2img
