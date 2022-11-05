@@ -59,7 +59,8 @@ NEGATIVEPROMPT = default negative prompt for generations
 - [ ] Optional custom width/height
 - [ ] Stats command
 - [ ] AIO setup/run
-
+- [ ] Batch size
+    - [ ] Image grid
 
 ### In progress (ordered by priority)
 - [ ] Add comments for better code readability (mostly for myself)
