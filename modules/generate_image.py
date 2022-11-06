@@ -4,15 +4,13 @@ import dotenv
 import aiohttp
 from modules import progress
 
-dotenv.load_dotenv()
-
 URL = os.getenv('URL')
 DEFAULTPROMPT = os.getenv('DEFAULTPROMPT')
 NEGATIVEPROMPT = os.getenv('NEGATIVEPROMPT')
 
 async def generate_image(ctx, prompt, neg_prompt, width: int, height: int, seed: int):
 
-    if not DEFAULTPROMPT:
+    if DEFAULTPROMPT:
         prompt = f"{DEFAULTPROMPT}, {prompt}"
 
     data = json.dumps({
