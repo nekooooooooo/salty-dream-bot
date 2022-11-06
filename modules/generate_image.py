@@ -11,8 +11,12 @@ DEFAULTPROMPT = os.getenv('DEFAULTPROMPT')
 NEGATIVEPROMPT = os.getenv('NEGATIVEPROMPT')
 
 async def generate_image(ctx, prompt, neg_prompt, width: int, height: int, seed: int):
+
+    if not DEFAULTPROMPT:
+        prompt = f"{DEFAULTPROMPT}, {prompt}"
+
     data = json.dumps({
-        "prompt": f"{DEFAULTPROMPT}, {prompt}",
+        "prompt": prompt,
         "negative_prompt": f"{neg_prompt}, {NEGATIVEPROMPT}",
         "seed": seed,
         "batch_size": 1,
