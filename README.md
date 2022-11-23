@@ -73,5 +73,6 @@ NEGATIVEPROMPT = default negative prompt for generations
 - [ ] Display progress
 - [x] Interrupt
     - [ ] Only author can interrupt
+- [ ] API Auth
 
 ### Completed
