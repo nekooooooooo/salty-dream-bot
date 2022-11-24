@@ -12,9 +12,6 @@ from modules import generate_image as webui
 from modules import data as var
 from modules import extras, interrupt
 
-# with open('data/config.yaml', 'r', encoding="UTF-8") as stream:
-#     config = yaml.safe_load(stream)
-
 intents = discord.Intents.default()
 intents.message_content = True
 
@@ -30,6 +27,11 @@ bot = commands.Bot()
 async def on_ready():
     print(f"{bot.user} is ready and online!")
     print(f"Stable Diffusion x AUTOMATIC1111")
+
+@bot.slash_command(name = "test")
+async def test(ctx: discord.Interaction, img: discord.commands.Option(discord.Attachment)):
+    img = img
+    await ctx.followup.send(file=img)
 
 # TODO put commands into cogs
 @bot.slash_command(name = "dream", description = "Generate Image")
@@ -88,10 +90,12 @@ async def dream(
     view = View(upscale_2x_button, upscale_4x_button, regenerate_button, save_button)
 
     async def upscale_2x_button_callback(interaction):
+        # TODO finish upscale
         extras.upscale(image, 2)
         await interaction.response.send_message(embed=embed)
 
     async def upscale_4x_button_callback(interaction):
+        # TODO finish upscale
         extras.upscale(image, 4)
         await interaction.response.send_message(embed=embed)
 
@@ -115,11 +119,14 @@ async def dream(
 
 async def generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed):
 
-    # any user can interrupt right now
     # TODO move interrupt button view into subclass then override interraction check
     interrupt_button = Button(label="Interrupt", style=discord.ButtonStyle.secondary, emoji="❌")
 
     async def interrupt_button_callback(interaction):
+        # check for author
+        if interaction.user != ctx.author:
+            await interaction.response.send_message(f"Only {ctx.author.name} can interrupt...", ephemeral=True)
+            return
         await interrupt.interrupt()
         await interaction.response.send_message("Interrupted...")
 
@@ -138,10 +145,6 @@ async def generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio
 async def get_image_info(output):
     image64 = output["images"][0]
     image64 = image64.replace("data:image/png;base64,", "")
-
-    # save image base64 string into text file
-    # with open("data/image.txt", "w") as text_file:
-    #         text_file.write(image64)
 
     imageInfo = json.loads(output["info"])
 
@@ -171,7 +174,7 @@ async def get_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_widt
     """
     print(log_message)
 
-    output = await webui.generate_image(ctx, prompt, neg_prompt, width, height, seed)
+    output = await webui.generate_image(prompt, neg_prompt, width, height, seed)
 
     # get generated image and related info from api request 
     image64, imageWidth, imageHeight, imageSeed = await get_image_info(output)

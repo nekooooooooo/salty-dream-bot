@@ -2,28 +2,30 @@ import json
 import os
 import dotenv
 import aiohttp
-from modules import progress
 
 dotenv.load_dotenv()
 URL = os.getenv('URL')
 DEFAULTPROMPT = os.getenv('DEFAULTPROMPT')
 NEGATIVEPROMPT = os.getenv('NEGATIVEPROMPT')
 
-async def generate_image(ctx, prompt, neg_prompt, width: int, height: int, seed: int):
+async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int):
 
     if DEFAULTPROMPT:
         prompt = f"{DEFAULTPROMPT}, {prompt}"
 
+    if NEGATIVEPROMPT:
+        neg_prompt = f"{neg_prompt}, {NEGATIVEPROMPT}"
+
     data = json.dumps({
         "prompt": prompt,
-        "negative_prompt": f"{neg_prompt}, {NEGATIVEPROMPT}",
+        "negative_prompt": neg_prompt,
         "seed": seed,
         "batch_size": 1,
         "steps": 28,
         "cfg_scale": 11,
         "width": width,
         "height": height,
-        "sampler_index": "Euler A"
+        "sampler_index": "Euler a"
     })
 
     headers = {
