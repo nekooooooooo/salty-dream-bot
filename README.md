@@ -71,8 +71,9 @@ NEGATIVEPROMPT = default negative prompt for generations
 - [ ] PNG info
 - [ ] img2img
 - [ ] Display progress
-- [x] Interrupt
-    - [ ] Only author can interrupt
 - [ ] API Auth
 
 ### Completed
+- [x] Interrupt
+    - [x] Only author can interrupt
+- [x] Samplers
