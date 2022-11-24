@@ -12,9 +12,6 @@ from modules import generate_image as webui
 from modules import data as var
 from modules import extras, interrupt
 
-# with open('data/config.yaml', 'r', encoding="UTF-8") as stream:
-#     config = yaml.safe_load(stream)
-
 intents = discord.Intents.default()
 intents.message_content = True
 
@@ -25,11 +22,17 @@ dotenv.load_dotenv()
 #     )
 bot = commands.Bot()
 
+samplers = var.get_samplers()
 
 @bot.event
 async def on_ready():
     print(f"{bot.user} is ready and online!")
     print(f"Stable Diffusion x AUTOMATIC1111")
+
+@bot.slash_command(name = "test")
+async def test(ctx: discord.Interaction, img: discord.commands.Option(discord.Attachment)):
+    img = img
+    await ctx.followup.send(file=img)
 
 # TODO put commands into cogs
 @bot.slash_command(name = "dream", description = "Generate Image")
@@ -67,17 +70,25 @@ async def dream(
             "Seed for your image, -1 for random",
             required=False,
             default=-1
+        ),
+        sampler: discord.commands.Option(
+            str,
+            "Select sampler (for advanced users, leave empty for default)",
+            required=False,
+            default="Euler a",
+            choices=var.get_samplers()
         )
     ):
     
     await ctx.response.defer()
 
-    # get dimensions and ratio from variables.py dictionaries (need to find a better way to store these values)
+    # get dimensions and ratio from variables.py dictionaries
+    # TODO need to find a better way to store these values
     dimensions = var.sizes[size]['dimensions']
     ratio_width = var.orientation[orientation]['ratio_width']
     ratio_height = var.orientation[orientation]['ratio_height']
 
-    image, embed = await generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed)
+    image, embed = await generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler)
 
     upscale_2x_button = Button(label="Upscale 2x", style=discord.ButtonStyle.secondary)
     upscale_4x_button = Button(label="Upscale 4x", style=discord.ButtonStyle.secondary)
@@ -88,10 +99,12 @@ async def dream(
     view = View(upscale_2x_button, upscale_4x_button, regenerate_button, save_button)
 
     async def upscale_2x_button_callback(interaction):
+        # TODO finish upscale
         extras.upscale(image, 2)
         await interaction.response.send_message(embed=embed)
 
     async def upscale_4x_button_callback(interaction):
+        # TODO finish upscale
         extras.upscale(image, 4)
         await interaction.response.send_message(embed=embed)
 
@@ -106,6 +119,7 @@ async def dream(
 
     await ctx.followup.send(embed=embed, file=image, view=view)
 
+# TODO error handling
 # @dream.error
 # async def on_application_command_error(ctx: discord.ApplicationContext, error: discord.DiscordException):
 #     if isinstance(error, discord.errors.ApplicationCommandInvokeError):
@@ -113,49 +127,22 @@ async def dream(
 #     else:
 #         raise error
 
-async def generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed):
+async def generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler):
 
-    # any user can interrupt right now
     # TODO move interrupt button view into subclass then override interraction check
     interrupt_button = Button(label="Interrupt", style=discord.ButtonStyle.secondary, emoji="❌")
 
     async def interrupt_button_callback(interaction):
+        # check for author
+        if interaction.user != ctx.author:
+            await interaction.response.send_message(f"Only {ctx.author.name} can interrupt...", ephemeral=True)
+            return
         await interrupt.interrupt()
         await interaction.response.send_message("Interrupted...")
 
     interrupt_button.callback = interrupt_button_callback
     await ctx.followup.send(f"Generating ``{prompt}``...", view=View(interrupt_button))
 
-    image, imageWidth, imageHeight, imageSeed, elapsedTime = await get_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed)
-
-    print("Image Generated!")
-    print(f"Elapsed Time: {elapsedTime:.2f} second/s")
-
-    embed = output_embed(prompt, imageWidth, imageHeight, imageSeed, elapsedTime)
-
-    return image, embed
-
-async def get_image_info(output):
-    image64 = output["images"][0]
-    image64 = image64.replace("data:image/png;base64,", "")
-
-    # save image base64 string into text file
-    # with open("data/image.txt", "w") as text_file:
-    #         text_file.write(image64)
-
-    imageInfo = json.loads(output["info"])
-
-    imageWidth = imageInfo["width"]
-    imageHeight = imageInfo["height"]
-
-    # regex for getting image seed from old api
-    # imageSeed = re.search(r"(\bSeed:\s+)(\S[^,]+)", imageInfo)
-    
-    imageSeed = imageInfo["seed"]
-
-    return image64, imageWidth, imageHeight, imageSeed
-
-async def get_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed):
     start = time.time()
 
     # calculate image width and height based on selected dimensions and orientation
@@ -171,10 +158,21 @@ async def get_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_widt
     """
     print(log_message)
 
-    output = await webui.generate_image(ctx, prompt, neg_prompt, width, height, seed)
+    output = await webui.generate_image(prompt, neg_prompt, width, height, seed, sampler)
 
-    # get generated image and related info from api request 
-    image64, imageWidth, imageHeight, imageSeed = await get_image_info(output)
+    # get generated image and related info from api request
+    image64 = output["images"][0]
+    image64 = image64.replace("data:image/png;base64,", "")
+
+    imageInfo = json.loads(output["info"])
+
+    imageWidth = imageInfo["width"]
+    imageHeight = imageInfo["height"]
+
+    # regex for getting image seed from old api
+    # imageSeed = re.search(r"(\bSeed:\s+)(\S[^,]+)", imageInfo)
+    
+    imageSeed = imageInfo["seed"]
 
     # decode image from base64
     decoded_image = io.BytesIO(base64.b64decode(image64))
@@ -186,7 +184,13 @@ async def get_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_widt
 
     end = time.time()
     elapsedTime = end - start
-    return image, imageWidth, imageHeight, imageSeed, elapsedTime
+
+    print("Image Generated!")
+    print(f"Elapsed Time: {elapsedTime:.2f} second/s")
+
+    embed = output_embed(prompt, imageWidth, imageHeight, imageSeed, elapsedTime)
+
+    return image, embed
 
 def output_embed(prompt, imageWidth, imageHeight, imageSeed, elapsedTime):
     embed = discord.Embed(
