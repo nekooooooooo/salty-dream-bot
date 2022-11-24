@@ -29,11 +29,6 @@ async def on_ready():
     print(f"{bot.user} is ready and online!")
     print(f"Stable Diffusion x AUTOMATIC1111")
 
-@bot.slash_command(name = "test")
-async def test(ctx: discord.Interaction, img: discord.commands.Option(discord.Attachment)):
-    img = img
-    await ctx.followup.send(file=img)
-
 # TODO put commands into cogs
 @bot.slash_command(name = "dream", description = "Generate Image")
 async def dream(
