@@ -85,36 +85,38 @@ async def dream(
     ratio_width = var.orientation[orientation]['ratio_width']
     ratio_height = var.orientation[orientation]['ratio_height']
 
-    image, embed = await generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler)
+    image, embed, image_b64, filename = await generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler)
 
-    upscale_2x_button = Button(label="Upscale 2x", style=discord.ButtonStyle.secondary)
-    upscale_4x_button = Button(label="Upscale 4x", style=discord.ButtonStyle.secondary)
-    regenerate_button = Button(                    style=discord.ButtonStyle.secondary, emoji="🔄")
-    save_button       = Button(                    style=discord.ButtonStyle.secondary, emoji="💾")
+    # upscale_2x_button = Button(label="Upscale 2x", style=discord.ButtonStyle.secondary)
+    # upscale_4x_button = Button(label="Upscale 4x", style=discord.ButtonStyle.secondary)
+    # regenerate_button = Button(                    style=discord.ButtonStyle.secondary, emoji="🔄")
+    # save_button       = Button(                    style=discord.ButtonStyle.secondary, emoji="💾")
 
-    # TODO subclass views and buttons
-    view = View(upscale_2x_button, upscale_4x_button, regenerate_button, save_button)
+    # # TODO subclass views and buttons
+    # view = View(upscale_2x_button, upscale_4x_button, regenerate_button, save_button)
 
-    async def upscale_2x_button_callback(interaction):
-        # TODO finish upscale
-        extras.upscale(image, 2)
-        await interaction.response.send_message(embed=embed)
+    # # TODO refactor this ugly code, disable buttons when pressed
+    # async def upscale_2x_button_callback(interaction):
+    #     upscale_size = 2
+    #     await upscale_button(interaction, upscale_size, image_b64, filename)
 
-    async def upscale_4x_button_callback(interaction):
-        # TODO finish upscale
-        extras.upscale(image, 4)
-        await interaction.response.send_message(embed=embed)
+    # async def upscale_4x_button_callback(interaction):
+    #     upscale_size = 4
+    #     await upscale_button(interaction, upscale_size, image_b64, filename)
+        
+    # async def regeneration_callback(interaction):
+    #     await interaction.response.defer()
+    #     interaction.response.edit_message_response()
+    #     image, embed, _, _ = await generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler)
+    #     await interaction.followup.send(embed=embed, file=image, view=view)
 
-    async def regeneration_callback(interaction):
-        await interaction.response.defer()
-        image, embed = await generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler)
-        await interaction.followup.send(embed=embed, file=image, view=view)
+    # upscale_2x_button.callback = upscale_2x_button_callback
+    # upscale_4x_button.callback = upscale_4x_button_callback
+    # regenerate_button.callback = regeneration_callback
 
-    upscale_2x_button.callback = upscale_2x_button_callback
-    upscale_4x_button.callback = upscale_4x_button_callback
-    regenerate_button.callback = regeneration_callback
+    # await ctx.followup.send(embed=embed, file=image, view=view)
 
-    await ctx.followup.send(embed=embed, file=image, view=view)
+    await ctx.followup.send(embed=embed, file=image)
 
 # TODO error handling
 # @dream.error
@@ -158,8 +160,8 @@ async def generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio
     output = await webui.generate_image(prompt, neg_prompt, width, height, seed, sampler)
 
     # get generated image and related info from api request
-    image64 = output["images"][0]
-    image64 = image64.replace("data:image/png;base64,", "")
+    image_b64 = output["images"][0]
+    image_b64 = image_b64.replace("data:image/png;base64,", "")
 
     imageInfo = json.loads(output["info"])
 
@@ -172,7 +174,7 @@ async def generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio
     imageSeed = imageInfo["seed"]
 
     # decode image from base64
-    decoded_image = io.BytesIO(base64.b64decode(image64))
+    decoded_image = io.BytesIO(base64.b64decode(image_b64))
 
     # remove special characters for filename
     filename = re.sub(r'[\\/*?:"<>|]',"",prompt)
@@ -187,7 +189,25 @@ async def generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio
 
     embed = output_embed(prompt, imageWidth, imageHeight, imageSeed, elapsedTime)
 
-    return image, embed
+    return image, embed, image_b64, filename
+
+async def upscale_button(interaction, upscale_size, image_b64, filename):
+    await interaction.response.defer()
+    await interaction.followup.send(f"Upscaling...")
+    upscaled_image = await get_upscaled(image_b64, upscale_size, "4x-UltraSharp")
+    file = discord.File(upscaled_image, filename=f"{filename}_upscaled_{upscale_size}x.png")
+    return await interaction.followup.send(file=file)
+
+async def get_upscaled(image_b64, size, model):
+    output = await extras.upscale(image_b64, size, model)
+
+    upscaled_image_b64 = output["image"]
+    upscaled_image_b64 = upscaled_image_b64.replace("data:image/png;base64,", "")
+
+    # decode image from base64
+    upscaled_image = io.BytesIO(base64.b64decode(upscaled_image_b64))
+
+    return upscaled_image
 
 def output_embed(prompt, imageWidth, imageHeight, imageSeed, elapsedTime):
     embed = discord.Embed(
@@ -260,7 +280,7 @@ async def interrogate(
 
     image_b64 = base64.b64encode(image).decode('utf-8')
     output = await interr.interrogate(image_b64, model.lower())
-    
+
     tags = output['caption']
 
     embed = discord.Embed(
