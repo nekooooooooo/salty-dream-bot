@@ -54,7 +54,6 @@ NEGATIVEPROMPT = default negative prompt for generations
 - [ ] Model/checkpoint swapping
     - [ ] Hypernetwork swapping
         - [ ] Hypernetwork strenght
-- [ ] Interrogate/DeepDanbooru
 - [ ] Optional custom width/height
 - [ ] Stats command
 - [ ] AIO setup/run
@@ -66,6 +65,7 @@ NEGATIVEPROMPT = default negative prompt for generations
 - [ ] Remove test code comments
 - [ ] Locally save images
 - [ ] Queues
+- [ ] Interrogate/DeepDanbooru
 - [ ] Add restore faces option
 - [ ] Error handling
 - [ ] PNG info
