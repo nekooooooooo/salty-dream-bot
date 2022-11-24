@@ -42,10 +42,6 @@ NEGATIVEPROMPT = default negative prompt for generations
 ```
 
 ## To Do
-
-- [ ] Refactor code
-    - [ ] Subclasses
-    - [ ] Cogs
 - [ ] Optimize code
 - [ ] Per-server config
 - [ ] Save prompts into styles
@@ -62,10 +58,12 @@ NEGATIVEPROMPT = default negative prompt for generations
 
 ### In progress (ordered by priority)
 - [ ] Add comments for better code readability (mostly for myself)
+- [ ] Refactor code
+    - [ ] Subclasses
+    - [ ] Cogs
 - [ ] Remove test code comments
 - [ ] Locally save images
 - [ ] Queues
-- [ ] Interrogate/DeepDanbooru
 - [ ] Add restore faces option
 - [ ] Error handling
 - [ ] PNG info
@@ -77,3 +75,4 @@ NEGATIVEPROMPT = default negative prompt for generations
 - [x] Interrupt
     - [x] Only author can interrupt
 - [x] Samplers
+- [x] Interrogate with CLIP/DeepDanbooru
