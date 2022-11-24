@@ -74,7 +74,8 @@ async def dream(
     
     await ctx.response.defer()
 
-    # get dimensions and ratio from variables.py dictionaries (need to find a better way to store these values)
+    # get dimensions and ratio from variables.py dictionaries
+    # TODO need to find a better way to store these values
     dimensions = var.sizes[size]['dimensions']
     ratio_width = var.orientation[orientation]['ratio_width']
     ratio_height = var.orientation[orientation]['ratio_height']
@@ -110,6 +111,7 @@ async def dream(
 
     await ctx.followup.send(embed=embed, file=image, view=view)
 
+# TODO error handling
 # @dream.error
 # async def on_application_command_error(ctx: discord.ApplicationContext, error: discord.DiscordException):
 #     if isinstance(error, discord.errors.ApplicationCommandInvokeError):
@@ -142,6 +144,7 @@ async def generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio
 
     return image, embed
 
+# TODO might just remove unneccesary functions and refactor
 async def get_image_info(output):
     image64 = output["images"][0]
     image64 = image64.replace("data:image/png;base64,", "")
