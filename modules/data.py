@@ -36,6 +36,11 @@ sizes = {
     }
 }
 
+image_media_types = [
+    "image/png",
+    "image/jpeg"
+]
+
 def get_samplers():
     headers = {
         'Content-Type': 'application/json'
