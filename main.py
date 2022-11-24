@@ -22,6 +22,7 @@ dotenv.load_dotenv()
 #     )
 bot = commands.Bot()
 
+samplers = var.get_samplers()
 
 @bot.event
 async def on_ready():
@@ -69,6 +70,13 @@ async def dream(
             "Seed for your image, -1 for random",
             required=False,
             default=-1
+        ),
+        sampler: discord.commands.Option(
+            str,
+            "Select sampler (for advanced users, leave empty for default)",
+            required=False,
+            default="Euler a",
+            choices=var.get_samplers()
         )
     ):
     
@@ -80,7 +88,7 @@ async def dream(
     ratio_width = var.orientation[orientation]['ratio_width']
     ratio_height = var.orientation[orientation]['ratio_height']
 
-    image, embed = await generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed)
+    image, embed = await generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler)
 
     upscale_2x_button = Button(label="Upscale 2x", style=discord.ButtonStyle.secondary)
     upscale_4x_button = Button(label="Upscale 4x", style=discord.ButtonStyle.secondary)
@@ -119,7 +127,7 @@ async def dream(
 #     else:
 #         raise error
 
-async def generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed):
+async def generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler):
 
     # TODO move interrupt button view into subclass then override interraction check
     interrupt_button = Button(label="Interrupt", style=discord.ButtonStyle.secondary, emoji="❌")
@@ -135,33 +143,6 @@ async def generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio
     interrupt_button.callback = interrupt_button_callback
     await ctx.followup.send(f"Generating ``{prompt}``...", view=View(interrupt_button))
 
-    image, imageWidth, imageHeight, imageSeed, elapsedTime = await get_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed)
-
-    print("Image Generated!")
-    print(f"Elapsed Time: {elapsedTime:.2f} second/s")
-
-    embed = output_embed(prompt, imageWidth, imageHeight, imageSeed, elapsedTime)
-
-    return image, embed
-
-# TODO might just remove unneccesary functions and refactor
-async def get_image_info(output):
-    image64 = output["images"][0]
-    image64 = image64.replace("data:image/png;base64,", "")
-
-    imageInfo = json.loads(output["info"])
-
-    imageWidth = imageInfo["width"]
-    imageHeight = imageInfo["height"]
-
-    # regex for getting image seed from old api
-    # imageSeed = re.search(r"(\bSeed:\s+)(\S[^,]+)", imageInfo)
-    
-    imageSeed = imageInfo["seed"]
-
-    return image64, imageWidth, imageHeight, imageSeed
-
-async def get_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed):
     start = time.time()
 
     # calculate image width and height based on selected dimensions and orientation
@@ -177,10 +158,21 @@ async def get_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_widt
     """
     print(log_message)
 
-    output = await webui.generate_image(prompt, neg_prompt, width, height, seed)
+    output = await webui.generate_image(prompt, neg_prompt, width, height, seed, sampler)
 
-    # get generated image and related info from api request 
-    image64, imageWidth, imageHeight, imageSeed = await get_image_info(output)
+    # get generated image and related info from api request
+    image64 = output["images"][0]
+    image64 = image64.replace("data:image/png;base64,", "")
+
+    imageInfo = json.loads(output["info"])
+
+    imageWidth = imageInfo["width"]
+    imageHeight = imageInfo["height"]
+
+    # regex for getting image seed from old api
+    # imageSeed = re.search(r"(\bSeed:\s+)(\S[^,]+)", imageInfo)
+    
+    imageSeed = imageInfo["seed"]
 
     # decode image from base64
     decoded_image = io.BytesIO(base64.b64decode(image64))
@@ -192,7 +184,13 @@ async def get_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_widt
 
     end = time.time()
     elapsedTime = end - start
-    return image, imageWidth, imageHeight, imageSeed, elapsedTime
+
+    print("Image Generated!")
+    print(f"Elapsed Time: {elapsedTime:.2f} second/s")
+
+    embed = output_embed(prompt, imageWidth, imageHeight, imageSeed, elapsedTime)
+
+    return image, embed
 
 def output_embed(prompt, imageWidth, imageHeight, imageSeed, elapsedTime):
     embed = discord.Embed(

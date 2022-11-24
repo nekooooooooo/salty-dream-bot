@@ -8,7 +8,7 @@ URL = os.getenv('URL')
 DEFAULTPROMPT = os.getenv('DEFAULTPROMPT')
 NEGATIVEPROMPT = os.getenv('NEGATIVEPROMPT')
 
-async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int):
+async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int, sampler):
 
     if DEFAULTPROMPT:
         prompt = f"{DEFAULTPROMPT}, {prompt}"
@@ -25,28 +25,15 @@ async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int)
         "cfg_scale": 11,
         "width": width,
         "height": height,
-        "sampler_index": "Euler a"
+        "sampler_index": sampler
     })
 
     headers = {
         'Content-Type': 'application/json'
     }
 
-    async with aiohttp.ClientSession() as cs:
-        async with cs.post(f"{URL}/sdapi/v1/txt2img", headers=headers, data=data) as r:
-            # print(r.status)
-            res = await r.json()
-            return res
-
-    # r = requests.request("POST", TXT2IMGURL, headers=headers, data=data)
-
-    # with open("data/output.json", "w") as text_file:
-    #     text_file.write(r.text) 
-
-    # return r.json()
-        
-
-# generate_image("test", "", 512, 512, -1)
-    
+    async with aiohttp.ClientSession() as session:
+        async with session.post(f"{URL}/sdapi/v1/txt2img", headers=headers, data=data) as resp:
+            return await resp.json()
    
         
