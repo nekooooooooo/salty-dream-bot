@@ -116,7 +116,7 @@ async def dream(
 
     # await ctx.followup.send(embed=embed, file=image, view=view)
 
-    await ctx.followup.send(embed=embed, file=image)
+    await ctx.interaction.edit_original_response(content="Generated...",embed=embed, file=image, view=View())
 
 # TODO error handling
 # @dream.error
@@ -131,17 +131,18 @@ async def generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio
     # TODO move interrupt button view into subclass then override interraction check
     interrupt_button = Button(label="Interrupt", style=discord.ButtonStyle.secondary, emoji="❌")
 
+    await ctx.followup.send(f"Generating ``{prompt}``...", view=View(interrupt_button))
+
     async def interrupt_button_callback(interaction):
         # check for author
         if interaction.user != ctx.author:
             await interaction.response.send_message(f"Only {ctx.author.name} can interrupt...", ephemeral=True)
             return
         await interrupt.interrupt()
-        await interaction.response.send_message("Interrupted...")
+        await ctx.interaction.edit_original_response(content="Interrupted...")
 
     interrupt_button.callback = interrupt_button_callback
-    await ctx.followup.send(f"Generating ``{prompt}``...", view=View(interrupt_button))
-
+    
     start = time.time()
 
     # calculate image width and height based on selected dimensions and orientation
