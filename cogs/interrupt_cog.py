@@ -92,7 +92,7 @@ class Interrupt(commands.Cog):
 
         await ctx.interaction.edit_original_response(content="Interrogated!",embed=embed, file=file)
 
-    def error_embed(title, desc):
+    def error_embed(self, title, desc):
         embed = discord.Embed(
             color=discord.Colour.red(),
             title=title,

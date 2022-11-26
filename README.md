@@ -60,9 +60,9 @@ NEGATIVEPROMPT = default negative prompt for generations
 
 ### In progress (ordered by priority)
 - [ ] Add comments for better code readability (mostly for myself)
-- [ ] Refactor code
+- [x] Refactor code
     - [ ] Subclasses
-    - [ ] Cogs
+    - [x] Cogs
 - [ ] Extras
     - [ ] Upscaling
 - [ ] Remove test code comments
