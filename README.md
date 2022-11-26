@@ -48,7 +48,7 @@ NEGATIVEPROMPT = default negative prompt for generations
 
 ## Credits
 - AUTOMATIC1111, and all the contributors of the [Web UI](https://github.com/AUTOMATIC1111/stable-diffusion-webui)
-- Kilvoctu, for the [API guide](https://github.com/AUTOMATIC1111/stable-diffusion-webui/discussions/3734) and their implementation of the API with [Aiya Bot](https://github.com/Kilvoctu/aiyabot)
+- Kilvoctu, for the [API guide](https://github.com/AUTOMATIC1111/stable-diffusion-webui/discussions/3734#discussioncomment-3976954) and their implementation of the API with [Aiya Bot](https://github.com/Kilvoctu/aiyabot)
 - mix1009, for their [python API client library](https://github.com/mix1009/sdwebuiapi)
 
 ## To Do
