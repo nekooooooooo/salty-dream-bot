@@ -9,7 +9,7 @@ from discord import option
 from modules import interrogate as interr
 from modules import values
 
-class Interrupt(commands.Cog):
+class Interrogate(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
@@ -101,4 +101,4 @@ class Interrupt(commands.Cog):
         return embed
     
 def setup(bot):
-    bot.add_cog(Interrupt(bot))
+    bot.add_cog(Interrogate(bot))
