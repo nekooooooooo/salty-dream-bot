@@ -4,4 +4,4 @@ __pycache__
 /data/output.json
 tempCodeRunnerFile.py
 .env
-cogs/waifu.py
+waifu.py

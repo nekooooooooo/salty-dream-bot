@@ -8,6 +8,7 @@ URL = os.getenv('URL')
 DEFAULTPROMPT = os.getenv('DEFAULTPROMPT')
 NEGATIVEPROMPT = os.getenv('NEGATIVEPROMPT')
 
+# TODO place these in a config file at some point
 batch_size = 1
 steps = 28
 cfg_scale = 12
