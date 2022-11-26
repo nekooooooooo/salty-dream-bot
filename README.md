@@ -25,10 +25,12 @@ TOKEN = bot token here
 ## Features
 
 - Basic txt2img
-- Negative Prompts
-- Image orientation/aspect ratio (square, landscape, portrait)
-- Image size presets (small, normal, large)
-- Seed
+    - Negative Prompts
+    - Image orientation/aspect ratio (square, landscape, portrait)
+    - Image size presets (small, normal, large)
+    - Seed
+    - Samplers
+- Interrogate using CLIP and DeepDanbooru
 
 ## Optional .env variables:
 
