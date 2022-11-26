@@ -1,5 +1,4 @@
 import discord
-import asyncio
 import time
 import json
 import io, base64
@@ -58,13 +57,16 @@ class Dream(commands.Cog):
         choices=values.get_samplers(),
     )
 
-    async def dream(self, ctx: discord.ApplicationContext,
-                    prompt: str,
-                    neg_prompt: str = None,
-                    orientation: str = "square",
-                    size: str = "normal",
-                    seed: int = -1,
-                    sampler: str = "Euler a"):
+    async def dream(
+            self, 
+            ctx: discord.ApplicationContext,
+            prompt: str,
+            neg_prompt: str = None,
+            orientation: str = "square",
+            size: str = "normal",
+            seed: int = -1,
+            sampler: str = "Euler a"
+        ):
         await ctx.response.defer()
 
         # get dimensions and ratio from values.py dictionaries
@@ -139,12 +141,13 @@ class Dream(commands.Cog):
         width = dimensions * ratio_width
         height = dimensions * ratio_height
 
-        log_message = f"""
-            Generating Image
-            Prompt: {prompt}
-            Negative Prompt: {neg_prompt}
-            Composition: {orientation} ({width} x  {height})
-            Seed: {seed}
+        log_message = f"""Generating Image
+
+Prompt: {prompt}
+Negative Prompt: {neg_prompt}
+Composition: {orientation} ({width} x  {height})
+Seed: {seed}
+
         """
         print(log_message)
 
