@@ -6,11 +6,12 @@ import io, base64
 import json
 import discord
 import aiohttp
+import asyncio
 from urllib.parse import urlparse
 from discord.ui import Button, View
 from discord.ext import commands
 from modules import generate_image as webui
-from modules import data as var
+from modules import values
 from modules import extras, interrupt
 from modules import interrogate as interr
 
@@ -23,8 +24,6 @@ dotenv.load_dotenv()
 #     owner_id=config['owner_id']
 #     )
 bot = commands.Bot()
-
-samplers = var.get_samplers()
 
 @bot.event
 async def on_ready():
@@ -51,14 +50,14 @@ async def dream(
         orientation: discord.commands.Option(
             str,
             "Composition of the image",
-            choices=var.orientation,
+            choices=values.orientation,
             required=False,
             default="square"
         ),
         size: discord.commands.Option(
             str,
             "Size of the image (Large is slow, expect double generation time)",
-            choices=var.sizes,
+            choices=values.sizes,
             required=False,
             default="normal"
         ),
@@ -73,17 +72,17 @@ async def dream(
             "Select sampler (for advanced users, leave empty for default)",
             required=False,
             default="Euler a",
-            choices=var.get_samplers()
+            choices=values.get_samplers()
         )
     ):
     
     await ctx.response.defer()
 
-    # get dimensions and ratio from variables.py dictionaries
+    # get dimensions and ratio from values.py dictionaries
     # TODO need to find a better way to store these values
-    dimensions = var.sizes[size]['dimensions']
-    ratio_width = var.orientation[orientation]['ratio_width']
-    ratio_height = var.orientation[orientation]['ratio_height']
+    dimensions = values.sizes[size]['dimensions']
+    ratio_width = values.orientation[orientation]['ratio_width']
+    ratio_height = values.orientation[orientation]['ratio_height']
 
     image, embed, image_b64, filename = await generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler)
 
@@ -116,7 +115,7 @@ async def dream(
 
     # await ctx.followup.send(embed=embed, file=image, view=view)
 
-    await ctx.interaction.edit_original_response(content="Generated...",embed=embed, file=image, view=View())
+    await ctx.interaction.edit_original_response(content=f"Generated! {ctx.author.mention}",embed=embed, file=image, view=View())
 
 # TODO error handling
 # @dream.error
@@ -131,7 +130,7 @@ async def generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio
     # TODO move interrupt button view into subclass then override interraction check
     interrupt_button = Button(label="Interrupt", style=discord.ButtonStyle.secondary, emoji="❌")
 
-    await ctx.followup.send(f"Generating ``{prompt}``...", view=View(interrupt_button))
+    await ctx.followup.send(f"Generating ``{prompt}`` for {ctx.author.mention}...", view=View(interrupt_button))
 
     async def interrupt_button_callback(interaction):
         # check for author
@@ -238,9 +237,9 @@ async def interrogate(
         ),
         model: discord.commands.Option(
             str,
-            "Model to use for interrogating (default clip)",
+            "Model to use for interrogating (default CLIP)",
             required=False,
-            default="clip",
+            default="CLIP",
             choices=["CLIP", "DeepDanbooru"]
         )
     ):
@@ -263,11 +262,13 @@ async def interrogate(
     # checks if url is used otherwise use attachment
     if image_url is None:
         # checks if both url and attachment params are missing, then checks if attachment is an image
-        if image_attachment is None or image_attachment.content_type not in var.image_media_types:
+        if image_attachment is None or image_attachment.content_type not in values.image_media_types:
             embed = error_embed("", "Please attach an image...")
             return await ctx.followup.send(embed=embed, ephemeral=True)
 
         image_url = image_attachment.url
+
+    await ctx.followup.send(f"Interrogating...")
     
     # TODO find a better way to convert image to a discord file
     # get image from url then send it as a file
@@ -290,7 +291,7 @@ async def interrogate(
     embed.add_field(name="📋 Interrogated Prompt",       value=f"```{tags}```")
     embed.set_footer(text="Salty Dream Bot | AUTOMATIC1111 | Stable Diffusion", icon_url=bot.user.avatar.url)
 
-    await ctx.followup.send(embed=embed, file=file)
+    await ctx.interaction.edit_original_response(content="Interrogated!",embed=embed, file=file)
 
 def error_embed(title, desc):
     embed = discord.Embed(
@@ -304,8 +305,9 @@ def error_embed(title, desc):
 async def on_guild_join(guild):
     print(f'Joined {guild.name}!')
 
-def main():
+async def main():
+    await bot.start(os.getenv('TOKEN'))
     print("Running bot...")
-    bot.run(os.getenv('TOKEN'))
+    bot.run()
 
-main()
+asyncio.run(main())
