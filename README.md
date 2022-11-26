@@ -45,8 +45,6 @@ NEGATIVEPROMPT = default negative prompt for generations
 - [ ] Optimize code
 - [ ] Per-server config
 - [ ] Save prompts into styles
-- [ ] Extras
-    - [ ] Upscaling
 - [ ] Model/checkpoint swapping
     - [ ] Hypernetwork swapping
         - [ ] Hypernetwork strenght
@@ -61,6 +59,8 @@ NEGATIVEPROMPT = default negative prompt for generations
 - [ ] Refactor code
     - [ ] Subclasses
     - [ ] Cogs
+- [ ] Extras
+    - [ ] Upscaling
 - [ ] Remove test code comments
 - [ ] Locally save images
 - [ ] Queues
