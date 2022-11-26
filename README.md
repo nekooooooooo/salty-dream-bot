@@ -3,7 +3,7 @@
 # Salty Dream Bot
 A simple, unoptimized locally run Stable Diffusion discord bot
 
-<img src="https://raw.githubusercontent.com/nekooooooooo/nekooooooooo.github.io/master/pics/preview_dream_bot_2.png">
+![](https://raw.githubusercontent.com/nekooooooooo/nekooooooooo.github.io/master/pics/preview_dream_bot_2.png)
 
 This was mostly made for my friend's private server.
 I won't be maintaining this repo that much (like most of my repos) but I'll try my best to finish everything on the [to do](#to-do) list
@@ -32,7 +32,7 @@ TOKEN = bot token here
 - Samplers
 
 ### Interrogate using CLIP and DeepDanbooru
-<img src="https://raw.githubusercontent.com/nekooooooooo/nekooooooooo.github.io/master/pics/preview_dream_bot_interrogate.png">
+![](https://raw.githubusercontent.com/nekooooooooo/nekooooooooo.github.io/master/pics/preview_dream_bot_interrogate.png)
 
 ## Optional .env variables:
 
