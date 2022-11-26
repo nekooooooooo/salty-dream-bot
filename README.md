@@ -24,13 +24,15 @@ TOKEN = bot token here
 
 ## Features
 
-- Basic txt2img
-    - Negative Prompts
-    - Image orientation/aspect ratio (square, landscape, portrait)
-    - Image size presets (small, normal, large)
-    - Seed
-    - Samplers
-- Interrogate using CLIP and DeepDanbooru
+### Basic txt2img
+- Negative Prompts
+- Image orientation/aspect ratio (square, landscape, portrait)
+- Image size presets (small, normal, large)
+- Seed
+- Samplers
+
+### Interrogate using CLIP and DeepDanbooru
+<img src="https://raw.githubusercontent.com/nekooooooooo/nekooooooooo.github.io/master/pics/preview_dream_bot_interrogate.png">
 
 ## Optional .env variables:
 
