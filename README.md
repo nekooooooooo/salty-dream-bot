@@ -55,9 +55,6 @@ NEGATIVEPROMPT = default negative prompt for generations
 - [ ] Optimize code
 - [ ] Per-server config
 - [ ] Save prompts into styles
-- [ ] Model/checkpoint swapping
-    - [ ] Hypernetwork swapping
-        - [ ] Hypernetwork strenght
 - [ ] Optional custom width/height
 - [ ] Stats command
 - [ ] AIO setup/run
@@ -71,6 +68,9 @@ NEGATIVEPROMPT = default negative prompt for generations
     - [x] Cogs
 - [ ] Extras
     - [ ] Upscaling
+- [ ] Model/checkpoint swapping
+    - [ ] Hypernetwork swapping
+        - [ ] Hypernetwork strenght
 - [ ] Remove test code comments
 - [ ] Locally save images
 - [ ] Queues
