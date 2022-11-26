@@ -14,7 +14,7 @@ dotenv.load_dotenv()
 #     )
 bot = commands.Bot()
 
-async def load_cogs():
+def load_cogs():
     for file in os.listdir("./cogs"):
         if file.endswith(".py"):
             bot.load_extension(f"cogs.{file[:-3]}")
@@ -29,9 +29,9 @@ async def on_ready():
 async def on_guild_join(guild):
     print(f'Joined {guild.name}!')
 
-async def main():
-    await load_cogs()
-    await bot.start(os.getenv('TOKEN'))
+def main():
+    load_cogs()
     print("Running bot...")
+    bot.run(os.getenv('TOKEN'))
 
-asyncio.run(main())
+main()
