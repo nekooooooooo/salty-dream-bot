@@ -70,7 +70,7 @@ class Dream(commands.Cog):
         await ctx.response.defer()
 
         # get dimensions and ratio from values.py dictionaries
-        # TODO need to find a better way to store these values
+        # TODO: need to find a better way to store these values
         dimensions = values.sizes[size]['dimensions']
         ratio_width = values.orientation[orientation]['ratio_width']
         ratio_height = values.orientation[orientation]['ratio_height']
@@ -84,10 +84,10 @@ class Dream(commands.Cog):
         # regenerate_button = Button(                    style=discord.ButtonStyle.secondary, emoji="🔄")
         # save_button       = Button(                    style=discord.ButtonStyle.secondary, emoji="💾")
 
-        # # TODO subclass views and buttons
+        # # TODO: subclass views and buttons
         # view = View(upscale_2x_button, upscale_4x_button, regenerate_button, save_button)
 
-        # # TODO refactor this ugly code, disable buttons when pressed
+        # # TODO: refactor this ugly code, disable buttons when pressed
         # async def upscale_2x_button_callback(interaction):
         #     upscale_size = 2
         #     await upscale_button(interaction, upscale_size, image_b64, filename)
@@ -110,7 +110,7 @@ class Dream(commands.Cog):
 
         await ctx.interaction.edit_original_response(content=f"Generated! {ctx.author.mention}",embed=embed, file=image, view=View())
 
-    # TODO error handling
+    # TODO: error handling
     # @dream.error
     # async def on_application_command_error(ctx: discord.ApplicationContext, error: discord.DiscordException):
     #     if isinstance(error, discord.errors.ApplicationCommandInvokeError):
@@ -120,7 +120,7 @@ class Dream(commands.Cog):
     
     async def generate_image(self, ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler):
 
-        # TODO move interrupt button view into subclass then override interraction check
+        # TODO: move interrupt button view into subclass then override interraction check
         interrupt_button = Button(label="Interrupt", style=discord.ButtonStyle.secondary, emoji="❌")
 
         await ctx.followup.send(f"Generating ``{prompt}`` for {ctx.author.mention}...", view=View(interrupt_button))

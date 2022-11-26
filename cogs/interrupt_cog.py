@@ -69,7 +69,7 @@ class Interrupt(commands.Cog):
 
         await ctx.followup.send(f"Interrogating...")
         
-        # TODO find a better way to convert image to a discord file
+        # TODO: find a better way to convert image to a discord file
         # get image from url then send it as a file
         async with aiohttp.ClientSession() as session:
             async with session.get(image_url) as resp:
