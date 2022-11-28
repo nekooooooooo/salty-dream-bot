@@ -88,3 +88,7 @@ def get_hypernetworks():
     except requests.exceptions.RequestException as error:
         print ("An error has occured while getting hypernetworks: ", error)
         return []
+
+samplers = get_samplers()
+models = get_models()
+hypernetworks = get_hypernetworks()

@@ -172,5 +172,40 @@ class Extras(commands.Cog):
         )
         return embed
     
+    def chunks(lst, n):
+        for i in range(0, len(lst), n):
+            yield lst[i:i + n]
+
+    hns = list(chunks(values.hypernetworks, 10))
+    print(f"{len(hns)} pages of hypernetworks loaded...")
+
+    # TODO Pagination for large lists of hypernetworks
+    @discord.slash_command(name = "hypernetworks", description = "Show list of hypernetworks")
+    @option(
+        "page",
+        int,
+        description="Select page",
+        required=True,
+        default=1,
+        min_value=1,
+        max_value=len(hns)
+    )
+    async def hypernetworks(self, 
+            ctx: discord.ApplicationContext,
+            page: int,
+        ):
+
+        value=""
+
+        for hypernetwork in self.hns[page-1]:
+            value = value + f"``{hypernetwork}``\n"
+
+        embed = discord.Embed(
+            color=discord.Colour.random(),
+        )
+        embed.add_field(name="Hypernetworks", value=f"{value}")
+        await ctx.respond(embed=embed)
+
+    
 def setup(bot):
     bot.add_cog(Extras(bot))

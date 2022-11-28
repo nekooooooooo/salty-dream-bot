@@ -15,11 +15,7 @@ class Dream(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.is_generating = False
-
-    samplers = values.get_samplers()
-    models = values.get_models()
-    hypernetworks = values.get_hypernetworks()
-
+    
     @discord.slash_command(name = "dream", description = "Generate Image")
     @option(
         "prompt",
@@ -60,7 +56,7 @@ class Dream(commands.Cog):
         str,
         description="Select sampler (for advanced users, leave empty for default)",
         required=False,
-        choices=samplers,
+        choices=values.samplers,
     )
     @option(
         "hypernetwork",
