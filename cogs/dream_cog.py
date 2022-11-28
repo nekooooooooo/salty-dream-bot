@@ -128,7 +128,8 @@ class Dream(commands.Cog):
         # TODO move interrupt button view into subclass then override interraction check
         interrupt_button = Button(label="Interrupt", style=discord.ButtonStyle.secondary, emoji="❌")
 
-        await ctx.followup.send(f"Generating ``{prompt}`` for {ctx.author.mention}...", view=View(interrupt_button))
+        message = f"Generating ``{prompt}``..."
+        await ctx.followup.send(message, view=View(interrupt_button))
 
         async def interrupt_button_callback(interaction):
             # check for author
@@ -156,7 +157,9 @@ Seed: {seed}
         """
         print(log_message)
 
+        self.progress.start(ctx, message)
         output = await generate_image.generate_image(prompt, neg_prompt, width, height, seed, sampler)
+        self.progress.cancel()
 
         # get generated image and related info from api request
         image_b64 = output["images"][0]
@@ -220,7 +223,15 @@ Seed: {seed}
         embed.set_footer(text="Salty Dream Bot | AUTOMATIC1111 | Stable Diffusion", icon_url=self.bot.user.avatar.url)
 
         return embed
-
+       
+    @tasks.loop(seconds = 3)
+    async def progress(self, ctx, original_message):
+        result = await extras.progress()
+        progress = result['progress']
+        eta = result['eta_relative']
+        eta = f"{int(eta)}s" if int(eta) != 0 else "Unknown"
+        print(f"{int(progress * 100)}% ETA: {eta}")
+        await ctx.interaction.edit_original_response(content=f"{original_message} {int(progress * 100)}% ETA: {eta}")
 
 def setup(bot):
     bot.add_cog(Dream(bot))
