@@ -41,7 +41,7 @@ async def pnginfo(image):
         async with session.post(f"{URL}/sdapi/v1/png-info", headers=headers, data=data) as resp:
             return await resp.json()
         
-async def show_progress():
+async def progress():
     async with aiohttp.ClientSession() as session:
         async with session.get(f"{URL}/sdapi/v1/progress") as resp:
             return await resp.json()
