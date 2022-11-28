@@ -8,7 +8,7 @@ URL = os.getenv('URL')
 DEFAULTPROMPT = os.getenv('DEFAULTPROMPT')
 NEGATIVEPROMPT = os.getenv('NEGATIVEPROMPT')
 
-# TODO: place these in a config file at some point
+# TODO place these in a config file at some point
 batch_size = 1
 steps = 28
 cfg_scale = 12
@@ -42,3 +42,8 @@ async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int,
     async with aiohttp.ClientSession() as session:
         async with session.post(f"{URL}/sdapi/v1/txt2img", headers=headers, data=data) as resp:
             return await resp.json()
+        
+async def interrupt():
+    async with aiohttp.ClientSession() as cs:
+        async with cs.post(f"{URL}/sdapi/v1/interrupt") as result:
+            print("Interrupted!")

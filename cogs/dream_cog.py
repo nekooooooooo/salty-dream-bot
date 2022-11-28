@@ -3,16 +3,19 @@ import time
 import json
 import io, base64
 import re
+import requests
 from discord import option
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.ui import Button, View
-from modules import generate_image as webui
-from modules import values, interrupt, extras
+from modules import generate_image
+from modules import values, extras
 
 class Dream(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+
+    samplers = values.get_samplers()
 
     @discord.slash_command(name = "dream", description = "Generate Image")
     @option(
@@ -54,7 +57,7 @@ class Dream(commands.Cog):
         str,
         description="Select sampler (for advanced users, leave empty for default)",
         required=False,
-        choices=values.get_samplers(),
+        choices=samplers,
     )
 
     async def dream(
@@ -70,13 +73,15 @@ class Dream(commands.Cog):
         await ctx.response.defer()
 
         # get dimensions and ratio from values.py dictionaries
-        # TODO: need to find a better way to store these values
+        # TODO need to find a better way to store these values
         dimensions = values.sizes[size]['dimensions']
         ratio_width = values.orientation[orientation]['ratio_width']
         ratio_height = values.orientation[orientation]['ratio_height']
 
         image, embed = await self.generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler)
        
+
+        #! fix this sht
         # image, embed, image_b64, filename = await self.generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler)
 
         # upscale_2x_button = Button(label="Upscale 2x", style=discord.ButtonStyle.secondary)
@@ -84,10 +89,10 @@ class Dream(commands.Cog):
         # regenerate_button = Button(                    style=discord.ButtonStyle.secondary, emoji="🔄")
         # save_button       = Button(                    style=discord.ButtonStyle.secondary, emoji="💾")
 
-        # # TODO: subclass views and buttons
+        # # TODO subclass views and buttons
         # view = View(upscale_2x_button, upscale_4x_button, regenerate_button, save_button)
 
-        # # TODO: refactor this ugly code, disable buttons when pressed
+        # # TODO refactor this ugly code, disable buttons when pressed
         # async def upscale_2x_button_callback(interaction):
         #     upscale_size = 2
         #     await upscale_button(interaction, upscale_size, image_b64, filename)
@@ -110,7 +115,7 @@ class Dream(commands.Cog):
 
         await ctx.interaction.edit_original_response(content=f"Generated! {ctx.author.mention}",embed=embed, file=image, view=View())
 
-    # TODO: error handling
+    # TODO error handling
     # @dream.error
     # async def on_application_command_error(ctx: discord.ApplicationContext, error: discord.DiscordException):
     #     if isinstance(error, discord.errors.ApplicationCommandInvokeError):
@@ -120,7 +125,7 @@ class Dream(commands.Cog):
     
     async def generate_image(self, ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler):
 
-        # TODO: move interrupt button view into subclass then override interraction check
+        # TODO move interrupt button view into subclass then override interraction check
         interrupt_button = Button(label="Interrupt", style=discord.ButtonStyle.secondary, emoji="❌")
 
         await ctx.followup.send(f"Generating ``{prompt}`` for {ctx.author.mention}...", view=View(interrupt_button))
@@ -130,7 +135,7 @@ class Dream(commands.Cog):
             if interaction.user != ctx.author:
                 await interaction.response.send_message(f"Only {ctx.author.name} can interrupt...", ephemeral=True)
                 return
-            await interrupt.interrupt()
+            await generate_image.interrupt()
             await ctx.interaction.edit_original_response(content="Interrupted...")
 
         interrupt_button.callback = interrupt_button_callback
@@ -151,7 +156,7 @@ Seed: {seed}
         """
         print(log_message)
 
-        output = await webui.generate_image(prompt, neg_prompt, width, height, seed, sampler)
+        output = await generate_image.generate_image(prompt, neg_prompt, width, height, seed, sampler)
 
         # get generated image and related info from api request
         image_b64 = output["images"][0]
@@ -215,6 +220,7 @@ Seed: {seed}
         embed.set_footer(text="Salty Dream Bot | AUTOMATIC1111 | Stable Diffusion", icon_url=self.bot.user.avatar.url)
 
         return embed
+
 
 def setup(bot):
     bot.add_cog(Dream(bot))

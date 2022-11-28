@@ -46,8 +46,13 @@ def get_samplers():
         'Content-Type': 'application/json'
     }
 
-    resp = requests.get(f"{URL}/sdapi/v1/samplers", headers=headers)
-    samplers = []
-    for sampler in resp.json():
-        samplers.append(sampler['name'])
-    return samplers
+    try:
+        print("Getting samplers...")
+        resp = requests.get(f"{URL}/sdapi/v1/samplers", headers=headers)
+        samplers = []
+        for sampler in resp.json():
+            samplers.append(sampler['name'])
+        return samplers
+    except requests.exceptions.RequestException as error:
+        print ("An error has occured while getting samplers: ", error)
+        return []
