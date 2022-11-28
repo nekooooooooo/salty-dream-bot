@@ -58,6 +58,6 @@ async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int,
             return await resp.json()
         
 async def interrupt():
-    async with aiohttp.ClientSession() as cs:
-        async with cs.post(f"{URL}/sdapi/v1/interrupt") as result:
+    async with aiohttp.ClientSession() as session:
+        async with session.post(f"{URL}/sdapi/v1/interrupt") as result:
             print("Interrupted!")

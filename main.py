@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO,
                     datefmt='%H:%M:%S')
 
 bot.logger = logging.getLogger(__name__)
-
+            
 def load_cogs():
     for file in os.listdir("./cogs"):
         if file.endswith(".py"):

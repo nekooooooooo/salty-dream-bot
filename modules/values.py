@@ -10,29 +10,29 @@ errorMsg = "No connection could be made to AUTOMATIC1111 Stable Diffusion WebUI 
 
 # TODO store values somewhere better, json or yaml file maybe
 orientation = {
-    "square":{
-        "ratio_width":1,
-        "ratio_height":1
+    "square": {
+        "ratio_width": 1,
+        "ratio_height": 1
     },
-    "portrait":{
-        "ratio_width":1,
-        "ratio_height":1.5
+    "portrait": {
+        "ratio_width": 1,
+        "ratio_height": 1.5
     },
-    "landscape":{
-        "ratio_width":1.5,
-        "ratio_height":1
+    "landscape": {
+        "ratio_width": 1.5,
+        "ratio_height": 1
     }
 }
 
 sizes = {
-    "small":{
-        "dimensions":384
+    "small": {
+        "dimensions": 384
     },
-    "normal":{
-        "dimensions":512
+    "normal": {
+        "dimensions": 512
     },
-    "large":{
-        "dimensions":768
+    "large": {
+        "dimensions": 768
     }
 }
 
@@ -40,6 +40,7 @@ image_media_types = [
     "image/png",
     "image/jpeg"
 ]
+
 
 def get_samplers():
     headers = {
@@ -54,9 +55,10 @@ def get_samplers():
             samplers.append(sampler['name'])
         return samplers
     except requests.exceptions.RequestException as error:
-        print ("An error has occured while getting samplers: ", error)
+        print("An error has occured while getting samplers: ", error)
         return []
-    
+
+
 def get_models():
     headers = {
         'Content-Type': 'application/json'
@@ -70,9 +72,10 @@ def get_models():
             models.append(model['title'])
         return models
     except requests.exceptions.RequestException as error:
-        print ("An error has occured while getting models: ", error)
+        print("An error has occured while getting models: ", error)
         return []
-    
+
+
 def get_hypernetworks():
     headers = {
         'Content-Type': 'application/json'
@@ -86,8 +89,9 @@ def get_hypernetworks():
             hypernetworks.append(hypernetwork['name'])
         return hypernetworks
     except requests.exceptions.RequestException as error:
-        print ("An error has occured while getting hypernetworks: ", error)
+        print("An error has occured while getting hypernetworks: ", error)
         return []
+
 
 samplers = get_samplers()
 models = get_models()

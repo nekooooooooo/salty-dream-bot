@@ -1,10 +1,7 @@
 import discord
-import time
-import json
 import io
 import aiohttp
 import base64
-import re
 import os
 from urllib.parse import urlparse
 from discord import option

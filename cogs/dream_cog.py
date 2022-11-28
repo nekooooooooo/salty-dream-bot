@@ -1,9 +1,9 @@
 import discord
 import time
 import json
-import io, base64
+import io
+import base64
 import re
-import requests
 from discord import option
 from discord.ext import commands, tasks
 from discord.ui import Button, View
