@@ -14,6 +14,7 @@ class Dream(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self.is_generating = False
 
     samplers = values.get_samplers()
 
@@ -78,6 +79,11 @@ class Dream(commands.Cog):
         ratio_width = values.orientation[orientation]['ratio_width']
         ratio_height = values.orientation[orientation]['ratio_height']
 
+        if self.is_generating:
+            return await ctx.followup.send(f"Generation in progress... Try again in later")
+        
+        self.is_generating = True
+
         image, embed = await self.generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler)
        
 
@@ -113,6 +119,7 @@ class Dream(commands.Cog):
 
         # await ctx.followup.send(embed=embed, file=image, view=view)
 
+        self.is_generating = False
         await ctx.interaction.edit_original_response(content=f"Generated! {ctx.author.mention}",embed=embed, file=image, view=View())
 
     # TODO error handling
@@ -228,10 +235,11 @@ Seed: {seed}
     async def progress(self, ctx, original_message):
         result = await extras.progress()
         progress = result['progress']
-        eta = result['eta_relative']
-        eta = f"{int(eta)}s" if int(eta) != 0 else "Unknown"
-        print(f"{int(progress * 100)}% ETA: {eta}")
-        await ctx.interaction.edit_original_response(content=f"{original_message} {int(progress * 100)}% ETA: {eta}")
+        if progress != 0:
+            eta = result['eta_relative']
+            eta = f"{int(eta)}s" if int(eta) != 0 else "Unknown"
+            print(f"{int(progress * 100)}% ETA: {eta}")
+            await ctx.interaction.edit_original_response(content=f"{original_message} {int(progress * 100)}% ETA: {eta}")
 
 def setup(bot):
     bot.add_cog(Dream(bot))
