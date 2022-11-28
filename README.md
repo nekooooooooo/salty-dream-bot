@@ -76,7 +76,6 @@ NEGATIVEPROMPT = default negative prompt for generations
 - [ ] Queues
 - [ ] Add restore faces option
 - [ ] Error handling
-- [ ] PNG info
 - [ ] img2img
 - [ ] Display progress
 - [ ] API Auth
@@ -86,3 +85,4 @@ NEGATIVEPROMPT = default negative prompt for generations
     - [x] Only author can interrupt
 - [x] Samplers
 - [x] Interrogate with CLIP/DeepDanbooru
+- [x] PNG info
