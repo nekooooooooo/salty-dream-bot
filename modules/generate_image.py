@@ -44,12 +44,17 @@ async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int,
     if model:
         override_settings["sd_model_checkpoint"] = model
 
-    override_settings["sd_hypernetwork"] = hypernetwork
-    override_settings["sd_hypernetwork_strength"] = hypernetwork_strenght
+    if hypernetwork:
+        override_settings["sd_hypernetwork"] = hypernetwork
+    
+    if hypernetwork_strenght:
+        override_settings["sd_hypernetwork_strength"] = hypernetwork_strenght
 
     override_data = {
         "override_settings": override_settings
     }
+
+    print(override_data)
 
     data.update(override_data)
 

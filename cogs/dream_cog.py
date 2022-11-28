@@ -93,8 +93,8 @@ class Dream(commands.Cog):
             seed: int = -1,
             sampler: str = "Euler a",
             models: str = None,
-            hypernetwork: str = "None",
-            hypernetwork_strenght: float = 1.0
+            hypernetwork: str = None,
+            hypernetwork_strenght: float = None
         ):
         await ctx.response.defer()
 
@@ -170,6 +170,7 @@ class Dream(commands.Cog):
                 await interaction.response.send_message(f"Only {ctx.author.name} can interrupt...", ephemeral=True)
                 return
             await generate_image.interrupt()
+            self.progress.cancel()
             await ctx.interaction.edit_original_response(content="Interrupted...")
 
         interrupt_button.callback = interrupt_button_callback
