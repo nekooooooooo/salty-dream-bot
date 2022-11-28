@@ -1,8 +1,9 @@
 import os
 import dotenv
 import discord
-import asyncio
+import logging
 from discord.ext import commands
+from modules.logging import get_logger
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -14,16 +15,22 @@ dotenv.load_dotenv()
 #     )
 bot = commands.Bot()
 
+logging.basicConfig(level=logging.INFO,
+                    format= '[%(asctime)s] %(levelname)s - %(message)s',
+                    datefmt='%H:%M:%S')
+
+bot.logger = logging.getLogger(__name__)
+
 def load_cogs():
     for file in os.listdir("./cogs"):
         if file.endswith(".py"):
+            print(f"Loading {file}")
             bot.load_extension(f"cogs.{file[:-3]}")
             print(f"Loaded {file}")
 
 @bot.event
 async def on_ready():
     print(f"{bot.user} is ready and online!")
-    print(f"Stable Diffusion x AUTOMATIC1111")
 
 @bot.event
 async def on_guild_join(guild):

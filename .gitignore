@@ -2,6 +2,7 @@ __pycache__
 /test files
 /data/image.txt
 /data/output.json
-tempCodeRunnerFile.py
+/.vscode
 .env
+tempCodeRunnerFile.py
 waifu.py
