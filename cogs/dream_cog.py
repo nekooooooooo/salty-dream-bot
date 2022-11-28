@@ -81,7 +81,7 @@ class Dream(commands.Cog):
 
         # TODO implement queue and remove this ugly fix
         if self.is_generating:
-            return await ctx.followup.send(f"Generation in progress... Try again in later")
+            return await ctx.followup.send(f"Generation in progress... Try again later")
         
         self.is_generating = True
 
