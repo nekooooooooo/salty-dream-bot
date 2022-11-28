@@ -13,7 +13,7 @@ batch_size = 1
 steps = 28
 cfg_scale = 12
 
-async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int, sampler, model, hypernetwork, hypernetwork_strenght):
+async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int, sampler, hypernetwork, hypernetwork_strenght):
 
     if DEFAULTPROMPT:
         prompt = f"{DEFAULTPROMPT}, {prompt}"
@@ -41,15 +41,6 @@ async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int,
 
     override_settings = {}
 
-    # TODO might move this to config instead since the changes stay
-    if model:
-        option_settings = {"sd_model_checkpoint": model}
-        print(f"Changing model to {model}")
-        async with aiohttp.ClientSession() as session:
-            async with session.post(f"{URL}/sdapi/v1/options", headers=headers, json=option_settings) as resp:
-                await resp.json()
-                print(f"Changed model to {model}")
-
     if hypernetwork:
         override_settings["sd_hypernetwork"] = hypernetwork
     
@@ -59,8 +50,6 @@ async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int,
     override_data = {
         "override_settings": override_settings
     }
-
-    print(override_data)
 
     data.update(override_data)
 

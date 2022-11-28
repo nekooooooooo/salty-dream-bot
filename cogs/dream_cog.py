@@ -63,12 +63,6 @@ class Dream(commands.Cog):
         choices=samplers,
     )
     @option(
-        "models",
-        str,
-        description="Select models (leave empty for default)",
-        required=False
-    )
-    @option(
         "hypernetwork",
         str,
         description="Select hypernetwork (leave empty for default)",
@@ -82,7 +76,6 @@ class Dream(commands.Cog):
         min_value=0.0,
         max_value=1.0
     )
-
     async def dream(
             self, 
             ctx: discord.ApplicationContext,
@@ -92,7 +85,6 @@ class Dream(commands.Cog):
             size: str = "normal",
             seed: int = -1,
             sampler: str = "Euler a",
-            models: str = None,
             hypernetwork: str = None,
             hypernetwork_strenght: float = None
         ):
@@ -110,7 +102,7 @@ class Dream(commands.Cog):
         
         self.is_generating = True
 
-        image, embed = await self.generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler, models, hypernetwork, hypernetwork_strenght)
+        image, embed = await self.generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler, hypernetwork, hypernetwork_strenght)
        
 
         #! fix this sht
@@ -156,7 +148,7 @@ class Dream(commands.Cog):
     #     else:
     #         raise error
     
-    async def generate_image(self, ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler, models, hypernetwork, hypernetwork_strenght):
+    async def generate_image(self, ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler, hypernetwork, hypernetwork_strenght):
 
         # TODO move interrupt button view into subclass then override interraction check
         interrupt_button = Button(label="Interrupt", style=discord.ButtonStyle.secondary, emoji="❌")
@@ -192,7 +184,7 @@ Seed: {seed}
         print(log_message)
 
         self.progress.start(ctx, message)
-        output = await generate_image.generate_image(prompt, neg_prompt, width, height, seed, sampler, models, hypernetwork, hypernetwork_strenght)
+        output = await generate_image.generate_image(prompt, neg_prompt, width, height, seed, sampler, hypernetwork, hypernetwork_strenght)
         self.progress.cancel()
 
         # get generated image and related info from api request
