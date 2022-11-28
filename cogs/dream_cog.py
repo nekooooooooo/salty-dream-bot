@@ -17,6 +17,8 @@ class Dream(commands.Cog):
         self.is_generating = False
 
     samplers = values.get_samplers()
+    models = values.get_models()
+    hypernetworks = values.get_hypernetworks()
 
     @discord.slash_command(name = "dream", description = "Generate Image")
     @option(
@@ -60,6 +62,26 @@ class Dream(commands.Cog):
         required=False,
         choices=samplers,
     )
+    @option(
+        "models",
+        str,
+        description="Select models (for advanced users, leave empty for default)",
+        required=False
+    )
+    @option(
+        "hypernetwork",
+        str,
+        description="Select hypernetwork (for advanced users, leave empty for default)",
+        required=False
+    )
+    @option(
+        "hypernetwork_strenght",
+        float,
+        description="Select hypernetwork strenght (for advanced users, leave empty for default)",
+        required=False,
+        min_value=0.0,
+        max_value=1.0
+    )
 
     async def dream(
             self, 
@@ -69,7 +91,10 @@ class Dream(commands.Cog):
             orientation: str = "square",
             size: str = "normal",
             seed: int = -1,
-            sampler: str = "Euler a"
+            sampler: str = "Euler a",
+            models: str = None,
+            hypernetwork: str = "None",
+            hypernetwork_strenght: float = 1.0
         ):
         await ctx.response.defer()
 
@@ -85,7 +110,7 @@ class Dream(commands.Cog):
         
         self.is_generating = True
 
-        image, embed = await self.generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler)
+        image, embed = await self.generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler, models, hypernetwork, hypernetwork_strenght)
        
 
         #! fix this sht
@@ -131,7 +156,7 @@ class Dream(commands.Cog):
     #     else:
     #         raise error
     
-    async def generate_image(self, ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler):
+    async def generate_image(self, ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler, models, hypernetwork, hypernetwork_strenght):
 
         # TODO move interrupt button view into subclass then override interraction check
         interrupt_button = Button(label="Interrupt", style=discord.ButtonStyle.secondary, emoji="❌")
@@ -166,7 +191,7 @@ Seed: {seed}
         print(log_message)
 
         self.progress.start(ctx, message)
-        output = await generate_image.generate_image(prompt, neg_prompt, width, height, seed, sampler)
+        output = await generate_image.generate_image(prompt, neg_prompt, width, height, seed, sampler, models, hypernetwork, hypernetwork_strenght)
         self.progress.cancel()
 
         # get generated image and related info from api request

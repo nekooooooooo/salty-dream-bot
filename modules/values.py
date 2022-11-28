@@ -56,3 +56,35 @@ def get_samplers():
     except requests.exceptions.RequestException as error:
         print ("An error has occured while getting samplers: ", error)
         return []
+    
+def get_models():
+    headers = {
+        'Content-Type': 'application/json'
+    }
+
+    try:
+        print("Getting models...")
+        resp = requests.get(f"{URL}/sdapi/v1/sd-models", headers=headers)
+        models = []
+        for model in resp.json():
+            models.append(model['title'])
+        return models
+    except requests.exceptions.RequestException as error:
+        print ("An error has occured while getting models: ", error)
+        return []
+    
+def get_hypernetworks():
+    headers = {
+        'Content-Type': 'application/json'
+    }
+
+    try:
+        print("Getting hypernetworks...")
+        resp = requests.get(f"{URL}/sdapi/v1/hypernetworks", headers=headers)
+        hypernetworks = []
+        for hypernetwork in resp.json():
+            hypernetworks.append(hypernetwork['name'])
+        return hypernetworks
+    except requests.exceptions.RequestException as error:
+        print ("An error has occured while getting hypernetworks: ", error)
+        return []
