@@ -13,7 +13,7 @@ batch_size = 1
 steps = 28
 cfg_scale = 12
 
-async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int, sampler):
+async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int, sampler, hypernetwork, hypernetwork_strenght):
 
     if DEFAULTPROMPT:
         prompt = f"{DEFAULTPROMPT}, {prompt}"
@@ -23,7 +23,7 @@ async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int,
 
     # TODO config for parameters
     # edit default steps and CFG scale here
-    data = json.dumps({
+    data = {
         "prompt": prompt,
         "negative_prompt": neg_prompt,
         "seed": seed,
@@ -33,14 +33,28 @@ async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int,
         "width": width,
         "height": height,
         "sampler_index": sampler
-    })
+    }
 
     headers = {
         'Content-Type': 'application/json'
     }
 
+    override_settings = {}
+
+    if hypernetwork:
+        override_settings["sd_hypernetwork"] = hypernetwork
+    
+    if hypernetwork_strenght:
+        override_settings["sd_hypernetwork_strength"] = hypernetwork_strenght
+
+    override_data = {
+        "override_settings": override_settings
+    }
+
+    data.update(override_data)
+
     async with aiohttp.ClientSession() as session:
-        async with session.post(f"{URL}/sdapi/v1/txt2img", headers=headers, data=data) as resp:
+        async with session.post(f"{URL}/sdapi/v1/txt2img", headers=headers, json=data) as resp:
             return await resp.json()
         
 async def interrupt():
