@@ -79,6 +79,7 @@ class Dream(commands.Cog):
         ratio_width = values.orientation[orientation]['ratio_width']
         ratio_height = values.orientation[orientation]['ratio_height']
 
+        # TODO implement queue and remove this ugly fix
         if self.is_generating:
             return await ctx.followup.send(f"Generation in progress... Try again in later")
         
@@ -230,7 +231,7 @@ Seed: {seed}
         embed.set_footer(text="Salty Dream Bot | AUTOMATIC1111 | Stable Diffusion", icon_url=self.bot.user.avatar.url)
 
         return embed
-       
+    
     @tasks.loop(seconds = 3)
     async def progress(self, ctx, original_message):
         result = await extras.progress()

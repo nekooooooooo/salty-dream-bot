@@ -54,6 +54,8 @@ NEGATIVEPROMPT = default negative prompt for generations
 ## To Do
 - [ ] Optimize code
 - [ ] Per-server config
+    - [ ] Default model/checkpoint swapping
+    - [ ] Default hypernetwork swapping
 - [ ] Save prompts into styles
 - [ ] Optional custom width/height
 - [ ] Stats command
@@ -68,16 +70,17 @@ NEGATIVEPROMPT = default negative prompt for generations
     - [x] Cogs
 - [ ] Extras
     - [ ] Upscaling
-- [ ] Model/checkpoint swapping
-    - [ ] Hypernetwork swapping
-        - [ ] Hypernetwork strenght
+- [x] Display progress
+    - [ ] Remove dirty fix
+- [ ] Model/checkpoint
+- [ ] Hypernetwork
+    - [ ] Hypernetwork strenght
 - [ ] Remove test code comments
 - [ ] Locally save images
 - [ ] Queues
 - [ ] Add restore faces option
 - [ ] Error handling
 - [ ] img2img
-- [ ] Display progress
 - [ ] API Auth
 
 ### Completed
