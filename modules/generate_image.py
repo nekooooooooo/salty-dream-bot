@@ -41,8 +41,14 @@ async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int,
 
     override_settings = {}
 
+    # TODO might move this to config instead since the changes stay
     if model:
-        override_settings["sd_model_checkpoint"] = model
+        option_settings = {"sd_model_checkpoint": model}
+        print(f"Changing model to {model}")
+        async with aiohttp.ClientSession() as session:
+            async with session.post(f"{URL}/sdapi/v1/options", headers=headers, json=option_settings) as resp:
+                await resp.json()
+                print(f"Changed model to {model}")
 
     if hypernetwork:
         override_settings["sd_hypernetwork"] = hypernetwork

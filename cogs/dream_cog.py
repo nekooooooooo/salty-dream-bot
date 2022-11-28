@@ -65,13 +65,13 @@ class Dream(commands.Cog):
     @option(
         "models",
         str,
-        description="Select models (for advanced users, leave empty for default)",
+        description="Select models (leave empty for default)",
         required=False
     )
     @option(
         "hypernetwork",
         str,
-        description="Select hypernetwork (for advanced users, leave empty for default)",
+        description="Select hypernetwork (leave empty for default)",
         required=False
     )
     @option(
