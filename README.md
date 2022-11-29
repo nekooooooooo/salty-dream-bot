@@ -10,6 +10,7 @@ I won't be maintaining this repo that much (like most of my repos) but I'll try 
 
 I recommend using [Kilvoctu's Aiya Bot](https://github.com/Kilvoctu/aiyabot) instead. It has better implementation of Automatic1111's WebUI API and more features that I have yet to add on mine, also actively being maintained.
 
+
 ## Setup
 
 - Set up [AUTOMATIC1111's Stable Diffusion WebUI](https://github.com/AUTOMATIC1111/stable-diffusion-webui)
@@ -25,6 +26,7 @@ TOKEN = bot token here
 ## Features
 
 ### Basic txt2img
+![](https://user-images.githubusercontent.com/69033860/204470547-5c8959f7-339a-4994-9b6f-1b3f049ddb68.gif)
 - Negative Prompts
 - Image orientation/aspect ratio (square, landscape, portrait)
 - Image size presets (small, normal, large)
@@ -73,8 +75,8 @@ NEGATIVEPROMPT = default negative prompt for generations
 - [x] Display progress
     - [ ] Remove dirty fix
 - [ ] Model/checkpoint
-- [ ] Hypernetwork
-    - [ ] Hypernetwork strenght
+- [x] Hypernetwork
+    - [x] Hypernetwork strenght
 - [ ] Remove test code comments
 - [ ] Locally save images
 - [ ] Queues
