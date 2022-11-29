@@ -178,7 +178,7 @@ Seed: {seed}
 
         """
         print(log_message)
-
+        
         self.progress.start(ctx, message)
         output = await generate_image.generate_image(prompt, neg_prompt, width, height, seed, sampler, hypernetwork, hypernetwork_strenght)
         self.progress.cancel()
@@ -187,31 +187,61 @@ Seed: {seed}
         image_b64 = output["images"][0]
         image_b64 = image_b64.replace("data:image/png;base64,", "")
 
-        imageInfo = json.loads(output["info"])
-
-        imageWidth = imageInfo["width"]
-        imageHeight = imageInfo["height"]
-
+        image_info = json.loads(output["info"])
+        image_width = image_info["width"]
+        image_height = image_info["height"]
         # regex for getting image seed from old api
         # imageSeed = re.search(r"(\bSeed:\s+)(\S[^,]+)", imageInfo)
-        
-        imageSeed = imageInfo["seed"]
+        image_seed = image_info["seed"]
+        image_sampler = image_info["sampler_name"]
+        image_scale = image_info["cfg_scale"]
+        image_steps = image_info["steps"]
+        image_neg_prompt = image_info["negative_prompt"]
 
         # decode image from base64
         decoded_image = io.BytesIO(base64.b64decode(image_b64))
 
         # remove special characters for filename
         filename = re.sub(r'[\\/*?:"<>|]',"",prompt)
-        filename = f"{filename[:200]}_{imageSeed}"
+        filename = f"{filename[:200]}_{image_seed}"
         image = discord.File(decoded_image, filename=f"{filename}.png")
 
         end = time.time()
-        elapsedTime = end - start
+        elapsed_time = end - start
 
         print("Image Generated!")
-        print(f"Elapsed Time: {elapsedTime:.2f} second/s")
+        print(f"Elapsed Time: {elapsed_time:.2f} second/s")
 
-        embed = self.output_embed(prompt, imageWidth, imageHeight, imageSeed, elapsedTime)
+        embed = discord.Embed(
+            color=discord.Colour.random(),
+        )
+        embed.add_field(name="📋 Prompt",
+                        value=f"```{prompt}```",
+                        inline=False)
+        if image_neg_prompt:
+            embed.add_field(name="❌ Negative Prompt",
+                            value=f"```{image_neg_prompt}```",
+                            inline=False)
+        embed.add_field(name="📐 Size",
+                        value=f"```{image_width} x {image_height}```",
+                        inline=True)
+        embed.add_field(name="🌱 Seed",
+                        value=f"```{image_seed}```",
+                        inline=True)
+        embed.add_field(name="🧪 Sampler",
+                        value=f"```{image_sampler}```",
+                        inline=True)
+        embed.add_field(name="⚖ CFG Scale",
+                        value=f"```{image_scale}```",
+                        inline=True)
+        embed.add_field(name="👣 Steps",
+                        value=f"```{image_steps}```",
+                        inline=True)
+        embed.add_field(name="⏱ Elapsed Time",
+                        value=f"```{elapsed_time:.2f} second/s```",
+                        inline=True)
+        embed.set_footer(text="Salty Dream Bot | AUTOMATIC1111 | Stable Diffusion",
+                         icon_url=self.bot.user.avatar.url)
 
         return image, embed
         # return image, embed, image_b64, filename
@@ -233,18 +263,6 @@ Seed: {seed}
         upscaled_image = io.BytesIO(base64.b64decode(upscaled_image_b64))
 
         return upscaled_image
-
-    def output_embed(self, prompt, imageWidth, imageHeight, imageSeed, elapsedTime):
-        embed = discord.Embed(
-            color=discord.Colour.random(),
-        )
-        embed.add_field(name="📋 Prompt",       value=f"```{prompt}```",                     inline=False)
-        embed.add_field(name="📐 Size",         value=f"```{imageWidth} x {imageHeight}```", inline=True)
-        embed.add_field(name="🌱 Seed",         value=f"```{imageSeed}```",                  inline=True)
-        embed.add_field(name="⏱ Elapsed Time", value=f"```{elapsedTime:.2f} second/s```",   inline=True)
-        embed.set_footer(text="Salty Dream Bot | AUTOMATIC1111 | Stable Diffusion", icon_url=self.bot.user.avatar.url)
-
-        return embed
     
     @tasks.loop(seconds = 3)
     async def progress(self, ctx, original_message):
