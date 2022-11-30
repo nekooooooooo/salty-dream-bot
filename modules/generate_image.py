@@ -1,12 +1,14 @@
 import os
 import dotenv
 import aiohttp
-from modules import values
+import values
 
 dotenv.load_dotenv()
 URL = values.URL
 DEFAULTPROMPT = os.getenv('DEFAULTPROMPT')
 NEGATIVEPROMPT = os.getenv('NEGATIVEPROMPT')
+
+print(URL)
 
 # TODO place these in a config file at some point
 batch_size = 1

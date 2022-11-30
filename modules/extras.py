@@ -1,6 +1,6 @@
 import json
 import aiohttp
-from modules import values
+import values
 
 URL = values.URL
 
