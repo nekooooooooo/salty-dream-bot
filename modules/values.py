@@ -4,8 +4,12 @@ import requests
 
 # TODO store values somewhere better, json or yaml file maybe
 dotenv.load_dotenv()
+
+
+DEFAULTURL = "https//127.0.0.1:7860"
+CUSTOMURL = os.getenv('URL')
 # use default url if env custom url is not set
-URL = "https//127.0.0.1:7860" if not os.getenv('URL') else os.getenv('URL')
+URL = DEFAULTURL if not CUSTOMURL else CUSTOMURL
 
 # TODO store strings better for localization
 errorMsg = "No connection could be made to AUTOMATIC1111 Stable Diffusion WebUI backend. WebUI might be turned off."
