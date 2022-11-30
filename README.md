@@ -16,6 +16,7 @@ I recommend using [Kilvoctu's Aiya Bot](https://github.com/Kilvoctu/aiyabot) ins
 - Set up [AUTOMATIC1111's Stable Diffusion WebUI](https://github.com/AUTOMATIC1111/stable-diffusion-webui)
 - Run the Web UI with the api command line argument inside (`COMMANDLINE_ARGS=--api`)
 - Clone this repository
+- `pip install -r requirements.txt`
 - Create a .env inside the repo
 
 ```dotenv
