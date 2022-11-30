@@ -1,10 +1,10 @@
-import json
 import os
 import dotenv
 import aiohttp
+from modules import values
 
 dotenv.load_dotenv()
-URL = os.getenv('URL')
+URL = values.URL
 DEFAULTPROMPT = os.getenv('DEFAULTPROMPT')
 NEGATIVEPROMPT = os.getenv('NEGATIVEPROMPT')
 

@@ -1,11 +1,8 @@
 import json
-import os
-import dotenv
 import aiohttp
+from modules import values
 
-dotenv.load_dotenv()
-
-URL = os.getenv('URL')
+URL = values.URL
 
 headers = {
     'Content-Type': 'application/json'

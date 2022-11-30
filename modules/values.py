@@ -2,13 +2,15 @@ import os
 import dotenv
 import requests
 
+# TODO store values somewhere better, json or yaml file maybe
 dotenv.load_dotenv()
-URL = os.getenv('URL')
+# use default url if env custom url is not set
+URL = "https//127.0.0.1:7860" if not os.getenv('URL') else os.getenv('URL')
 
 # TODO store strings better for localization
 errorMsg = "No connection could be made to AUTOMATIC1111 Stable Diffusion WebUI backend. WebUI might be turned off."
 
-# TODO store values somewhere better, json or yaml file maybe
+# TODO store values somewhere better, json or yaml file maybe x2
 orientation = {
     "square": {
         "ratio_width": 1,
