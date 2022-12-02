@@ -1,8 +1,8 @@
 import json
 import aiohttp
-import values
+from modules.values import URL
 
-URL = values.URL
+URL = URL
 
 headers = {
     'Content-Type': 'application/json'
