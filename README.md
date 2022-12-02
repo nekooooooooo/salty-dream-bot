@@ -33,6 +33,7 @@ TOKEN = bot token here
 - Image size presets (small, normal, large)
 - Seed
 - Samplers
+- Hypernetworks
 
 ### Interrogate using CLIP and DeepDanbooru
 ![](https://raw.githubusercontent.com/nekooooooooo/nekooooooooo.github.io/master/pics/preview_dream_bot_interrogate.png)
@@ -73,6 +74,7 @@ NEGATIVEPROMPT = default negative prompt for generations
     - [x] Cogs
 - [ ] Extras
     - [ ] Upscaling
+- [ ] Queues
 - [x] Display progress
     - [ ] Remove dirty fix
 - [ ] Model/checkpoint
@@ -80,7 +82,6 @@ NEGATIVEPROMPT = default negative prompt for generations
     - [x] Hypernetwork strenght
 - [ ] Remove test code comments
 - [ ] Locally save images
-- [ ] Queues
 - [ ] Add restore faces option
 - [ ] Error handling
 - [ ] img2img
