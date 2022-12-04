@@ -68,9 +68,9 @@ class Dream(commands.Cog):
         required=False
     )
     @option(
-        "hypernetwork_strenght",
+        "hypernetwork_str",
         float,
-        description="Select hypernetwork strenght (for advanced users, leave empty for default)",
+        description="Input hypernetwork strenght (for advanced users, leave empty for default)",
         required=False,
         min_value=0.0,
         max_value=1.0
@@ -85,7 +85,7 @@ class Dream(commands.Cog):
             seed: int = -1,
             sampler: str = "Euler a",
             hypernetwork: str = None,
-            hypernetwork_strenght: float = None
+            hypernetwork_str: float = None
         ):
         await ctx.response.defer()
 
@@ -101,7 +101,13 @@ class Dream(commands.Cog):
         
         self.is_generating = True
 
-        image, embed = await self.generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler, hypernetwork, hypernetwork_strenght)
+        image, embed = await self.generate_image(
+            ctx, prompt, 
+            neg_prompt, orientation, 
+            dimensions, ratio_width, 
+            ratio_height, seed, 
+            sampler, hypernetwork, 
+            hypernetwork_str)
        
 
         #! fix this sht
@@ -137,7 +143,11 @@ class Dream(commands.Cog):
         # await ctx.followup.send(embed=embed, file=image, view=view)
 
         self.is_generating = False
-        await ctx.interaction.edit_original_response(content=f"Generated! {ctx.author.mention}",embed=embed, file=image, view=View())
+        await ctx.interaction.edit_original_response(
+            content=f"Generated! {ctx.author.mention}",
+            embed=embed, 
+            file=image, 
+            view=View())
 
     # TODO error handling
     # @dream.error
@@ -146,8 +156,145 @@ class Dream(commands.Cog):
     #         await ctx.respond(error)
     #     else:
     #         raise error
+
+    # TODO might just remove subclassing and combine txt2img and img2img into one
+    @dream.command(name="img2img", description="Generate image using image")
+    @option(
+        "image_attachment",
+        discord.Attachment,
+        description="Upload image",
+        required=True
+    )
+    @option(
+        "prompt",
+        str,
+        description="Enter prompt here",
+        max_lenght=500,
+        required=True
+    )
+    @option(
+        "image_url",
+        str,
+        description="Image URL, this overrides attached image",
+        required=False
+    )
+    @option(
+        "denoising",
+        float,
+        description="Input denoising strenght",
+        required=False,
+        min_value=0.0,
+        max_value=1.0
+    )
+    @option(
+        "neg_prompt",
+        str,
+        description="Enter negative prompt here",
+        max_lenght=500,
+        required=False,
+    )
+    @option(
+        "orientation",
+        str,
+        description="Orientation of the image",
+        choices=values.orientation,
+        required=False,
+    )
+    @option(
+        "size",
+        str,
+        description="Size of the image (Large is slow, expect double generation time)",
+        choices=values.sizes,
+        required=False,
+    )
+    @option(
+        "seed",
+        int,
+        description="Seed for your image, -1 for random",
+        required=False,
+    )
+    @option(
+        "sampler",
+        str,
+        description="Select sampler (for advanced users, leave empty for default)",
+        required=False,
+        choices=values.samplers,
+    )
+    @option(
+        "hypernetwork",
+        str,
+        description="Select hypernetwork (leave empty for default)",
+        required=False
+    )
+    @option(
+        "hypernetwork_str",
+        float,
+        description="Input hypernetwork strenght (for advanced users, leave empty for default)",
+        required=False,
+        min_value=0.0,
+        max_value=1.0
+    )
+    async def img2img(
+            self, 
+            ctx: discord.ApplicationContext,
+            image_attachment: discord.Attachment = None,
+            prompt: str = None,
+            image_url: str = None,
+            denoising: float = 0.6,
+            neg_prompt: str = None,
+            orientation: str = "square",
+            size: str = "normal",
+            seed: int = -1,
+            sampler: str = "Euler a",
+            hypernetwork: str = None,
+            hypernetwork_str: float = None,
+        ):
+        await ctx.response.defer()
+
+        # get dimensions and ratio from values.py dictionaries
+        # TODO need to find a better way to store these values
+        dimensions = values.sizes[size]['dimensions']
+        ratio_width = values.orientation[orientation]['ratio_width']
+        ratio_height = values.orientation[orientation]['ratio_height']
+
+        # TODO implement queue and remove this ugly fix
+        if self.is_generating:
+            return await ctx.followup.send(f"Generation in progress... Try again later")
+        
+        self.is_generating = True
+
+        new_image_url = await extras.check_image(ctx, image_url, image_attachment)
+
+        if new_image_url is None:
+            return
+
+        input_image, file = await extras.get_image_from_url(new_image_url)
+        input_image_b64 = base64.b64encode(input_image).decode('utf-8')
+
+        output_image, embed = await self.generate_image(
+            ctx, prompt, 
+            neg_prompt, orientation, 
+            dimensions, ratio_width, 
+            ratio_height, seed, 
+            sampler, hypernetwork, 
+            hypernetwork_str, input_image_b64,
+            denoising)
+
+        self.is_generating = False
+        await ctx.interaction.edit_original_response(
+            content=f"Generated! {ctx.author.mention}",
+            embed=embed, 
+            file=output_image, 
+            view=View())
     
-    async def generate_image(self, ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler, hypernetwork, hypernetwork_strenght):
+    async def generate_image(self, 
+            ctx, prompt, 
+            neg_prompt, orientation, 
+            dimensions, ratio_width, 
+            ratio_height, seed, 
+            sampler, hypernetwork, 
+            hypernetwork_str, image=None,
+            denoising=None):
 
         # TODO move interrupt button view into subclass then override interraction check
         interrupt_button = Button(label="Interrupt", style=discord.ButtonStyle.secondary, emoji="❌")
@@ -183,7 +330,14 @@ Seed: {seed}
         print(log_message)
         
         self.progress.start(ctx, message)
-        output = await generate_image.generate_image(prompt, neg_prompt, width, height, seed, sampler, hypernetwork, hypernetwork_strenght)
+
+        output = await generate_image.generate_image(
+            prompt, neg_prompt, 
+            width, height, 
+            seed, sampler, 
+            hypernetwork, hypernetwork_str,
+            image, denoising)
+
         self.progress.cancel()
 
         # get generated image and related info from api request
@@ -271,7 +425,7 @@ Seed: {seed}
     async def progress(self, ctx, original_message):
         result = await extras.progress()
         progress = result['progress']
-        if progress != 0:
+        if progress > 0:
             eta = result['eta_relative']
             eta = f"{int(eta)}s" if int(eta) != 0 else "Unknown"
             print(f"{int(progress * 100)}% ETA: {eta}")

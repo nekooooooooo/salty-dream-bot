@@ -4,7 +4,6 @@ import aiohttp
 from modules.values import URL
 
 dotenv.load_dotenv()
-URL = URL
 DEFAULTPROMPT = os.getenv('DEFAULTPROMPT')
 NEGATIVEPROMPT = os.getenv('NEGATIVEPROMPT')
 
@@ -13,7 +12,7 @@ batch_size = 1
 steps = 28
 cfg_scale = 12
 
-async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int, sampler, hypernetwork, hypernetwork_strenght):
+async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int, sampler, hypernetwork, hypernetwork_strenght, image=None, denoising=0.6):
 
     if DEFAULTPROMPT:
         prompt = f"{DEFAULTPROMPT}, {prompt}"
@@ -23,17 +22,30 @@ async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int,
 
     # TODO config for parameters
     # edit default steps and CFG scale here
+
     data = {
-        "prompt": prompt,
-        "negative_prompt": neg_prompt,
-        "seed": seed,
-        "batch_size": batch_size,
-        "steps": steps,
-        "cfg_scale": cfg_scale,
-        "width": width,
-        "height": height,
-        "sampler_index": sampler
-    }
+            "prompt": prompt,
+            "negative_prompt": neg_prompt,
+            "seed": seed,
+            "batch_size": batch_size,
+            "steps": steps,
+            "cfg_scale": cfg_scale,
+            "width": width,
+            "height": height,
+            "sampler_index": sampler
+        }
+    url = f"{URL}/sdapi/v1/txt2img"
+
+    if image:
+        print("Using image")
+        img2img_data = {
+            "init_images": [
+                f"data:image/png;base64,{image}"
+            ],
+            "denoising_strenght": denoising
+        }
+        data.update(img2img_data)
+        url = f"{URL}/sdapi/v1/img2img"
 
     headers = {
         'Content-Type': 'application/json'
@@ -54,7 +66,7 @@ async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int,
     data.update(override_data)
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(f"{URL}/sdapi/v1/txt2img", headers=headers, json=data) as resp:
+        async with session.post(url, headers=headers, json=data) as resp:
             return await resp.json()
         
 async def interrupt():
