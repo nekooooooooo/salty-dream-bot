@@ -5,6 +5,7 @@ import io
 import base64
 import re
 from discord import option
+from discord.commands import SlashCommandGroup
 from discord.ext import commands, tasks
 from discord.ui import Button, View
 from modules import generate_image
@@ -15,8 +16,10 @@ class Dream(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.is_generating = False
+
+    dream = SlashCommandGroup("dream", "Generate Image!")
     
-    @discord.slash_command(name = "dream", description = "Generate Image")
+    @dream.command(name="txt2img", description="Generate image using text")
     @option(
         "prompt",
         str,
@@ -72,7 +75,7 @@ class Dream(commands.Cog):
         min_value=0.0,
         max_value=1.0
     )
-    async def dream(
+    async def txt2img(
             self, 
             ctx: discord.ApplicationContext,
             prompt: str,

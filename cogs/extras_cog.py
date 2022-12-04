@@ -1,11 +1,8 @@
 import discord
-import io
-import aiohttp
 import base64
-import os
-from urllib.parse import urlparse
 from discord import option
 from discord.ext import commands
+from discord.commands import SlashCommandGroup
 from modules import values, extras
 
 class Extras(commands.Cog):
@@ -13,7 +10,7 @@ class Extras(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @discord.slash_command(name = "interrogate", description = "interrogate image")
+    @discord.slash_command(name="interrogate", description="interrogate image")
     @option(
         "image_attachment",
         discord.Attachment,
@@ -92,14 +89,14 @@ class Extras(commands.Cog):
 
         # check if image is valid
         #! this implementation is extremely ugly and dirty, need to find a better way
-        new_image_url = await self.check_image(ctx, image_url, image_attachment)
+        new_image_url = await extras.check_image(ctx, image_url, image_attachment)
 
         if new_image_url is None:
             return
         
         await ctx.followup.send(f"Getting info...")
         
-        image, file = await self.get_image_from_url(new_image_url)
+        image, file = await extras.get_image_from_url(new_image_url)
 
         image_b64 = base64.b64encode(image).decode('utf-8')
         output = await extras.pnginfo(image_b64)
@@ -117,49 +114,7 @@ class Extras(commands.Cog):
         embed.set_footer(text="Salty Dream Bot | AUTOMATIC1111 | Stable Diffusion", icon_url=self.bot.user.avatar.url)
 
         await ctx.interaction.edit_original_response(content="",embed=embed, file=file)
-        
 
-    async def check_image(self, ctx, image_url, image_attachment):
-        # check if image url is valid
-        if image_url:
-            async with aiohttp.ClientSession() as session:
-                try:
-                    async with session.get(image_url) as resp:
-                        if resp.status == 200:
-                            await resp.read()
-                        else:
-                            embed = self.error_embed("", "URL image not found...")
-                            await ctx.followup.send(embed=embed, ephemeral=True)
-                            return None
-                except aiohttp.ClientConnectorError as e:
-                    print('Connection Error', str(e))
-                    return None
-        
-        # checks if url is used otherwise use attachment
-        if image_url is None:
-            # checks if both url and attachment params are missing, then checks if attachment is an image
-            if image_attachment is None or image_attachment.content_type not in values.image_media_types:
-                embed = self.error_embed("", "Please attach an image...")
-                await ctx.followup.send(embed=embed, ephemeral=True)
-                return None
-
-            image_url = image_attachment.url
-
-        return image_url
-    
-    async def get_image_from_url(self, image_url):
-        # TODO find a better way to convert image to a discord file
-        # get image from url then send it as discord.file
-        async with aiohttp.ClientSession() as session:
-            async with session.get(image_url) as resp:
-                image = await resp.read()
-                with io.BytesIO(image) as img:
-                    # get filename from url
-                    a = urlparse(image_url)
-                    filename = os.path.basename(a.path)
-                    file = discord.File(img, filename=filename)
-
-        return image, file
 
     def error_embed(self, title, desc):
         embed = discord.Embed(
@@ -176,8 +131,10 @@ class Extras(commands.Cog):
     hns = list(chunks(values.hypernetworks, 10))
     print(f"{len(hns)} pages of hypernetworks loaded...")
 
+    show = SlashCommandGroup("show", "Show stuff!")
+
     # TODO Pagination for large lists of hypernetworks
-    @discord.slash_command(name = "hypernetworks", description = "Show list of hypernetworks")
+    @show.command(name="hypernetworks", description="Show list of hypernetworks")
     @option(
         "page",
         int,

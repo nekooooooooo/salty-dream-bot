@@ -8,8 +8,6 @@ URL = URL
 DEFAULTPROMPT = os.getenv('DEFAULTPROMPT')
 NEGATIVEPROMPT = os.getenv('NEGATIVEPROMPT')
 
-print(URL)
-
 # TODO place these in a config file at some point
 batch_size = 1
 steps = 28
