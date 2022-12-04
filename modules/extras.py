@@ -48,7 +48,7 @@ async def progress():
         async with session.get(f"{URL}/sdapi/v1/progress") as resp:
             return await resp.json()
 
-async def check_image(self, ctx, image_url, image_attachment):
+async def check_image(ctx, image_url, image_attachment):
     # check if image url is valid
     if image_url:
         async with aiohttp.ClientSession() as session:
@@ -57,7 +57,7 @@ async def check_image(self, ctx, image_url, image_attachment):
                     if resp.status == 200:
                         await resp.read()
                     else:
-                        embed = self.error_embed("", "URL image not found...")
+                        embed = error_embed("", "URL image not found...")
                         await ctx.followup.send(embed=embed, ephemeral=True)
                         return None
             except aiohttp.ClientConnectorError as e:
@@ -68,7 +68,7 @@ async def check_image(self, ctx, image_url, image_attachment):
     if image_url is None:
         # checks if both url and attachment params are missing, then checks if attachment is an image
         if image_attachment is None or image_attachment.content_type not in values.image_media_types:
-            embed = self.error_embed("", "Please attach an image...")
+            embed = error_embed("", "Please attach an image...")
             await ctx.followup.send(embed=embed, ephemeral=True)
             return None
 
@@ -76,7 +76,7 @@ async def check_image(self, ctx, image_url, image_attachment):
 
     return image_url
 
-async def get_image_from_url(self, image_url):
+async def get_image_from_url(image_url):
     # TODO find a better way to convert image to a discord file
     # get image from url then send it as discord.file
     async with aiohttp.ClientSession() as session:
@@ -89,4 +89,12 @@ async def get_image_from_url(self, image_url):
                 file = discord.File(img, filename=filename)
 
     return image, file
+
+def error_embed(title, desc):
+        embed = discord.Embed(
+            color=discord.Colour.red(),
+            title=title,
+            description=desc
+        )
+        return embed
 

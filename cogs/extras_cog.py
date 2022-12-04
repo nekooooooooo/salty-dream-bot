@@ -43,14 +43,14 @@ class Extras(commands.Cog):
 
         # check if url and image is valid
         #! this implementation is extremely ugly and dirty, need to find a better way
-        image_url = await self.check_image(ctx, image_url, image_attachment)
+        new_image_url = await extras.check_image(ctx, image_url, image_attachment)
 
-        if image_url is None:
+        if new_image_url is None:
             return
         
         await ctx.followup.send(f"Interrogating...")
 
-        image, file = await self.get_image_from_url(image_url)
+        image, file = await extras.get_image_from_url(image_url)
 
         image_b64 = base64.b64encode(image).decode('utf-8')
         output = await extras.interrogate(image_b64, model.lower())
@@ -115,14 +115,6 @@ class Extras(commands.Cog):
 
         await ctx.interaction.edit_original_response(content="",embed=embed, file=file)
 
-
-    def error_embed(self, title, desc):
-        embed = discord.Embed(
-            color=discord.Colour.red(),
-            title=title,
-            description=desc
-        )
-        return embed
     
     def chunks(lst, n):
         for i in range(0, len(lst), n):
