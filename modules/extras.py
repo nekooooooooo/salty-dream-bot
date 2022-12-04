@@ -4,6 +4,7 @@ import os
 import io
 import aiohttp
 import discord
+import logging
 from urllib.parse import urlparse
 from modules import values
 
@@ -61,7 +62,7 @@ async def check_image(ctx, image_url, image_attachment):
                         await ctx.followup.send(embed=embed, ephemeral=True)
                         return None
             except aiohttp.ClientConnectorError as e:
-                print('Connection Error', str(e))
+                logging.error('Connection Error', str(e))
                 return None
     
     # checks if url is used otherwise use attachment

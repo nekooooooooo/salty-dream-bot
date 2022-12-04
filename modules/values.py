@@ -1,6 +1,7 @@
 import os
 import dotenv
 import requests
+import logging
 
 # TODO store values somewhere better, json or yaml file maybe
 dotenv.load_dotenv()
@@ -54,14 +55,14 @@ def get_samplers():
     }
 
     try:
-        print("Getting samplers...")
+        logging.info("Getting samplers...")
         resp = requests.get(f"{URL}/sdapi/v1/samplers", headers=headers)
         samplers = []
         for sampler in resp.json():
             samplers.append(sampler['name'])
         return samplers
     except requests.exceptions.RequestException as error:
-        print("An error has occured while getting samplers: ", error)
+        logging.info("An error has occured while getting samplers: ", error)
         return []
 
 
@@ -71,14 +72,14 @@ def get_models():
     }
 
     try:
-        print("Getting models...")
+        logging.info("Getting models...")
         resp = requests.get(f"{URL}/sdapi/v1/sd-models", headers=headers)
         models = []
         for model in resp.json():
             models.append(model['title'])
         return models
     except requests.exceptions.RequestException as error:
-        print("An error has occured while getting models: ", error)
+        logging.info("An error has occured while getting models: ", error)
         return []
 
 
@@ -88,14 +89,14 @@ def get_hypernetworks():
     }
 
     try:
-        print("Getting hypernetworks...")
+        logging.info("Getting hypernetworks...")
         resp = requests.get(f"{URL}/sdapi/v1/hypernetworks", headers=headers)
         hypernetworks = []
         for hypernetwork in resp.json():
             hypernetworks.append(hypernetwork['name'])
         return hypernetworks
     except requests.exceptions.RequestException as error:
-        print("An error has occured while getting hypernetworks: ", error)
+        logging.error("An error has occured while getting hypernetworks: ", error)
         return []
 
 

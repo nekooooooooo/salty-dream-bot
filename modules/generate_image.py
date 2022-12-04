@@ -1,6 +1,7 @@
 import os
 import dotenv
 import aiohttp
+import logging
 from modules.values import URL
 
 dotenv.load_dotenv()
@@ -12,7 +13,12 @@ batch_size = 1
 steps = 28
 cfg_scale = 12
 
-async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int, sampler, hypernetwork, hypernetwork_strenght, image=None, denoising=0.6):
+async def generate_image(
+    prompt, neg_prompt, 
+    width: int, height: int, 
+    seed: int, sampler, 
+    hypernetwork=None, hypernetwork_str=None, 
+    image=None, denoising=0.6):
 
     if DEFAULTPROMPT:
         prompt = f"{DEFAULTPROMPT}, {prompt}"
@@ -37,12 +43,12 @@ async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int,
     url = f"{URL}/sdapi/v1/txt2img"
 
     if image:
-        print("Using image")
+        logging.info("Using image")
         img2img_data = {
             "init_images": [
                 f"data:image/png;base64,{image}"
             ],
-            "denoising_strenght": denoising
+            "denoising_strength": denoising
         }
         data.update(img2img_data)
         url = f"{URL}/sdapi/v1/img2img"
@@ -56,8 +62,8 @@ async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int,
     if hypernetwork:
         override_settings["sd_hypernetwork"] = hypernetwork
     
-    if hypernetwork_strenght:
-        override_settings["sd_hypernetwork_strength"] = hypernetwork_strenght
+    if hypernetwork_str:
+        override_settings["sd_hypernetwork_strength"] = hypernetwork_str
 
     override_data = {
         "override_settings": override_settings
@@ -72,4 +78,4 @@ async def generate_image(prompt, neg_prompt, width: int, height: int, seed: int,
 async def interrupt():
     async with aiohttp.ClientSession() as session:
         async with session.post(f"{URL}/sdapi/v1/interrupt") as result:
-            print("Interrupted!")
+            logging.info("Interrupted!")

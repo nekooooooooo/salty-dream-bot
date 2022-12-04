@@ -1,5 +1,6 @@
 import discord
 import base64
+import logging
 from discord import option
 from discord.ext import commands
 from discord.commands import SlashCommandGroup
@@ -102,7 +103,7 @@ class Extras(commands.Cog):
         output = await extras.pnginfo(image_b64)
 
         png_info = output['info']
-        print(png_info)
+        self.bot.logger.info(png_info)
 
         if png_info == '':
             png_info = "No info found"
@@ -121,7 +122,7 @@ class Extras(commands.Cog):
             yield lst[i:i + n]
 
     hns = list(chunks(values.hypernetworks, 10))
-    print(f"{len(hns)} pages of hypernetworks loaded...")
+    logging.info(f"{len(hns)} pages of hypernetworks loaded...")
 
     show = SlashCommandGroup("show", "Show stuff!")
 

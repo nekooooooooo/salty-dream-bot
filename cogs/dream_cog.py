@@ -266,7 +266,8 @@ class Dream(commands.Cog):
         new_image_url = await extras.check_image(ctx, image_url, image_attachment)
 
         if new_image_url is None:
-            return
+            self.is_generating = False
+            return 
 
         input_image, file = await extras.get_image_from_url(new_image_url)
         input_image_b64 = base64.b64encode(input_image).decode('utf-8')
@@ -278,7 +279,7 @@ class Dream(commands.Cog):
             ratio_height, seed, 
             sampler, hypernetwork, 
             hypernetwork_str, input_image_b64,
-            denoising)
+            denoising, file)
 
         self.is_generating = False
         await ctx.interaction.edit_original_response(
@@ -286,6 +287,7 @@ class Dream(commands.Cog):
             embed=embed, 
             file=output_image, 
             view=View())
+
     
     async def generate_image(self, 
             ctx, prompt, 
@@ -293,14 +295,17 @@ class Dream(commands.Cog):
             dimensions, ratio_width, 
             ratio_height, seed, 
             sampler, hypernetwork, 
-            hypernetwork_str, image=None,
-            denoising=None):
+            hypernetwork_str, image_b64=None,
+            denoising=None, file=None):
 
         # TODO move interrupt button view into subclass then override interraction check
         interrupt_button = Button(label="Interrupt", style=discord.ButtonStyle.secondary, emoji="❌")
 
         message = f"Generating ``{prompt}``..."
-        await ctx.followup.send(message, view=View(interrupt_button))
+        if file:
+            await ctx.followup.send(message, view=View(interrupt_button), file=file)
+        else:
+            await ctx.followup.send(message, view=View(interrupt_button))
 
         async def interrupt_button_callback(interaction):
             # check for author
@@ -320,14 +325,11 @@ class Dream(commands.Cog):
         height = dimensions * ratio_height
 
         log_message = f"""Generating Image
-
 Prompt: {prompt}
 Negative Prompt: {neg_prompt}
 Composition: {orientation} ({width} x  {height})
-Seed: {seed}
-
-        """
-        print(log_message)
+Seed: {seed}"""
+        self.bot.logger.info(log_message)
         
         self.progress.start(ctx, message)
 
@@ -336,7 +338,7 @@ Seed: {seed}
             width, height, 
             seed, sampler, 
             hypernetwork, hypernetwork_str,
-            image, denoising)
+            image_b64, denoising)
 
         self.progress.cancel()
 
@@ -361,13 +363,13 @@ Seed: {seed}
         # remove special characters for filename
         filename = re.sub(r'[\\/*?:"<>|]',"",prompt)
         filename = f"{filename[:200]}_{image_seed}"
-        image = discord.File(decoded_image, filename=f"{filename}.png")
+        image_b64 = discord.File(decoded_image, filename=f"{filename}.png")
 
         end = time.time()
         elapsed_time = end - start
 
-        print("Image Generated!")
-        print(f"Elapsed Time: {elapsed_time:.2f} second/s")
+        self.bot.logger.info("Image Generated!")
+        self.bot.logger.info(f"Elapsed Time: {elapsed_time:.2f} second/s")
 
         embed = discord.Embed(
             color=discord.Colour.random(),
@@ -400,7 +402,7 @@ Seed: {seed}
         embed.set_footer(text="Salty Dream Bot | AUTOMATIC1111 | Stable Diffusion",
                          icon_url=self.bot.user.avatar.url)
 
-        return image, embed
+        return image_b64, embed
         # return image, embed, image_b64, filename
 
     async def upscale_button(self, interaction, upscale_size, image_b64, filename):
@@ -428,7 +430,7 @@ Seed: {seed}
         if progress > 0:
             eta = result['eta_relative']
             eta = f"{int(eta)}s" if int(eta) != 0 else "Unknown"
-            print(f"{int(progress * 100)}% ETA: {eta}")
+            self.bot.logger.info(f"{int(progress * 100)}% ETA: {eta}")
             await ctx.interaction.edit_original_response(content=f"{original_message} {int(progress * 100)}% ETA: {eta}")
 
 def setup(bot):
