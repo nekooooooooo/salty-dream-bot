@@ -235,24 +235,24 @@ class Dream(commands.Cog):
         max_value=1.0
     )
     async def img2img(
-            self, 
-            ctx: discord.ApplicationContext,
-            image_attachment: discord.Attachment = None,
-            prompt: str = None,
-            image_url: str = None,
-            denoising: float = 0.6,
-            neg_prompt: str = None,
-            orientation: str = "square",
-            size: str = "normal",
-            seed: int = -1,
-            sampler: str = "Euler a",
-            hypernetwork: str = None,
-            hypernetwork_str: float = None,
-        ):
+        self, 
+        ctx: discord.ApplicationContext,
+        image_attachment: discord.Attachment = None,
+        prompt: str = None,
+        image_url: str = None,
+        denoising: float = 0.6,
+        neg_prompt: str = None,
+        orientation: str = None,
+        size: str = "normal",
+        seed: int = -1,
+        sampler: str = "Euler a",
+        hypernetwork: str = None,
+        hypernetwork_str: float = None,
+    ):
         await ctx.response.defer()
 
-        # get dimensions and ratio from values.py dictionaries
-        # TODO need to find a better way to store these values
+        # Get the dimensions and ratio from the values.py dictionaries
+        # TODO find a better way to store these values
         dimensions = values.sizes[size]['dimensions']
         ratio_width = values.orientation[orientation]['ratio_width']
         ratio_height = values.orientation[orientation]['ratio_height']
@@ -263,15 +263,39 @@ class Dream(commands.Cog):
         
         self.is_generating = True
 
+        # Check if the image URL is valid, and get the URL of a valid image
         new_image_url = await extras.check_image(ctx, image_url, image_attachment)
 
+        # If no valid image URL was found, return
         if new_image_url is None:
             self.is_generating = False
             return 
 
+        # Get the input image from the URL
         input_image, file = await extras.get_image_from_url(new_image_url)
+        # Encode the input image as a base64 string
         input_image_b64 = base64.b64encode(input_image).decode('utf-8')
 
+        image_height = image_attachment.height
+        image_width = image_attachment.width
+
+        # Determine the orientation of the image
+        if not orientation:
+            # Compare the image height and width
+            if image_height > image_width:
+                orientation = "portrait"
+            elif image_height < image_width:
+                orientation = "landscape"
+            else:
+                orientation = "square"
+
+            # Calculate the aspect ratio
+            aspect_ratio = abs(max(image_width, image_height) / min(image_width, image_height))
+            # Check if the aspect ratio is close to 1 (indicating a square image)
+            if (aspect_ratio - 1) < 0.2:
+                orientation = "square"
+
+        # Generate the output image
         output_image, embed = await self.generate_image(
             ctx, prompt, 
             neg_prompt, orientation, 
@@ -281,7 +305,9 @@ class Dream(commands.Cog):
             hypernetwork_str, input_image_b64,
             denoising, file)
 
+        # Reset the flag to indicate that the function is no longer generating an image
         self.is_generating = False
+        # Edit the original response message to include the generated
         await ctx.interaction.edit_original_response(
             content=f"Generated! {ctx.author.mention}",
             embed=embed, 
@@ -302,10 +328,9 @@ class Dream(commands.Cog):
         interrupt_button = Button(label="Interrupt", style=discord.ButtonStyle.secondary, emoji="❌")
 
         message = f"Generating ``{prompt}``..."
-        if file:
-            await ctx.followup.send(message, view=View(interrupt_button), file=file)
-        else:
-            await ctx.followup.send(message, view=View(interrupt_button))
+        
+        view = View(interrupt_button)
+        await ctx.followup.send(message, view=view, file=file if file else None)
 
         async def interrupt_button_callback(interaction):
             # check for author
@@ -347,15 +372,10 @@ Seed: {seed}"""
         image_b64 = image_b64.replace("data:image/png;base64,", "")
 
         image_info = json.loads(output["info"])
-        image_width = image_info["width"]
-        image_height = image_info["height"]
-        # regex for getting image seed from old api
-        # imageSeed = re.search(r"(\bSeed:\s+)(\S[^,]+)", imageInfo)
-        image_seed = image_info["seed"]
-        image_sampler = image_info["sampler_name"]
-        image_scale = image_info["cfg_scale"]
-        image_steps = image_info["steps"]
-        image_neg_prompt = image_info["negative_prompt"]
+        image_width, image_height = image_info["width"], image_info["height"]
+        image_seed, image_sampler = image_info["seed"], image_info["sampler_name"]
+        image_scale, image_steps = image_info["cfg_scale"], image_info["steps"]
+        image_neg_prompt = image_info["negative_prompt"]    
 
         # decode image from base64
         decoded_image = io.BytesIO(base64.b64decode(image_b64))
@@ -371,36 +391,27 @@ Seed: {seed}"""
         self.bot.logger.info("Image Generated!")
         self.bot.logger.info(f"Elapsed Time: {elapsed_time:.2f} second/s")
 
-        embed = discord.Embed(
-            color=discord.Colour.random(),
-        )
-        embed.add_field(name="📋 Prompt",
-                        value=f"```{prompt}```",
-                        inline=False)
-        if image_neg_prompt:
-            embed.add_field(name="❌ Negative Prompt",
-                            value=f"```{image_neg_prompt}```",
-                            inline=False)
-        embed.add_field(name="📐 Size",
-                        value=f"```{image_width} x {image_height}```",
-                        inline=True)
-        embed.add_field(name="🌱 Seed",
-                        value=f"```{image_seed}```",
-                        inline=True)
-        embed.add_field(name="🧪 Sampler",
-                        value=f"```{image_sampler}```",
-                        inline=True)
-        embed.add_field(name="⚖ CFG Scale",
-                        value=f"```{image_scale}```",
-                        inline=True)
-        embed.add_field(name="👣 Steps",
-                        value=f"```{image_steps}```",
-                        inline=True)
-        embed.add_field(name="⏱ Elapsed Time",
-                        value=f"```{elapsed_time:.2f} second/s```",
-                        inline=True)
+        embed = discord.Embed(color=discord.Colour.random())
+
+        # define the fields to be added to the embed object
+        fields = [
+            ("📋 Prompt", f"```{prompt}```", False),
+            ("❌ Negative Prompt", f"```{image_neg_prompt}```", False),
+            ("📐 Size", f"```{image_width} x {image_height}```", True),
+            ("🌱 Seed", f"```{image_seed}```", True),
+            ("🧪 Sampler", f"```{image_sampler}```", True),
+            ("⚖ CFG Scale", f"```{image_scale}```", True),
+            ("👣 Steps", f"```{image_steps}```", True),
+            ("⏱ Elapsed Time", f"```{elapsed_time:.2f} second/s```", True),
+        ]
+
+        # add the fields to the embed object using a loop
+        for name, value, inline in fields:
+            embed.add_field(name=name, value=value, inline=inline)
+
+        # set the footer for the embed object
         embed.set_footer(text="Salty Dream Bot | AUTOMATIC1111 | Stable Diffusion",
-                         icon_url=self.bot.user.avatar.url)
+                        icon_url=self.bot.user.avatar.url)
 
         return image_b64, embed
         # return image, embed, image_b64, filename
@@ -425,13 +436,18 @@ Seed: {seed}"""
     
     @tasks.loop(seconds = 3)
     async def progress(self, ctx, original_message):
+        # get the progress and ETA from the result of the extras.progress function
         result = await extras.progress()
         progress = result['progress']
+
+        # if there is progress, log it and update the original response
         if progress > 0:
             eta = result['eta_relative']
             eta = f"{int(eta)}s" if int(eta) != 0 else "Unknown"
             self.bot.logger.info(f"{int(progress * 100)}% ETA: {eta}")
-            await ctx.interaction.edit_original_response(content=f"{original_message} {int(progress * 100)}% ETA: {eta}")
+
+            message = f"{original_message} {int(progress * 100)}% ETA: {eta}"
+            await ctx.interaction.edit_original_response(content=message)
 
 def setup(bot):
     bot.add_cog(Dream(bot))
