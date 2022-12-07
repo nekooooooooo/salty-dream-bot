@@ -49,7 +49,7 @@ class Extras(commands.Cog):
         if new_image_url is None:
             return
         
-        await ctx.followup.send(f"Interrogating...")
+        await ctx.followup.send(f"Interrogating using {model}...")
 
         image, file = await extras.get_image_from_url(image_url)
 

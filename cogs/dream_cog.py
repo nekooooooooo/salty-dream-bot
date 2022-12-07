@@ -235,20 +235,20 @@ class Dream(commands.Cog):
         max_value=1.0
     )
     async def img2img(
-        self, 
-        ctx: discord.ApplicationContext,
-        image_attachment: discord.Attachment = None,
-        prompt: str = None,
-        image_url: str = None,
-        denoising: float = 0.6,
-        neg_prompt: str = None,
-        orientation: str = None,
-        size: str = "normal",
-        seed: int = -1,
-        sampler: str = "Euler a",
-        hypernetwork: str = None,
-        hypernetwork_str: float = None,
-    ):
+            self, 
+            ctx: discord.ApplicationContext,
+            image_attachment: discord.Attachment = None,
+            prompt: str = None,
+            image_url: str = None,
+            denoising: float = 0.6,
+            neg_prompt: str = None,
+            orientation: str = None,
+            size: str = "normal",
+            seed: int = -1,
+            sampler: str = "Euler a",
+            hypernetwork: str = None,
+            hypernetwork_str: float = None,
+        ):
         await ctx.response.defer()
 
         # Get the dimensions and ratio from the values.py dictionaries

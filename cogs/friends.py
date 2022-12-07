@@ -139,16 +139,11 @@ class Friends(commands.Cog):
             if (aspect_ratio - 1) < 0.2:
                 orientation = "square"
 
-        # Print the value of orientation
-        print(orientation)
-
         # get dimensions and ratio from values.py dictionaries
         # TODO need to find a better way to store these values
         dimensions = values.sizes[size]['dimensions']
         ratio_width = values.orientation[orientation]['ratio_width']
         ratio_height = values.orientation[orientation]['ratio_height']
-
-        print(image_height, image_width)
 
         logging.info("Interrogating")
         await ctx.followup.send("Interrogating...")
@@ -206,9 +201,9 @@ class Friends(commands.Cog):
         interrupt_button = Button(label="Interrupt", style=discord.ButtonStyle.secondary, emoji="❌")
 
         message = f"Generating ``{prompt}``..."
-        
+
         view = View(interrupt_button)
-        await ctx.followup.send(message, view=view, file=file if file else None)
+        await ctx.interaction.edit_original_response(content=message, view=view, file=file if file else None)
 
         async def interrupt_button_callback(interaction):
             # check for author

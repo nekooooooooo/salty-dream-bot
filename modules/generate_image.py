@@ -26,6 +26,8 @@ async def generate_image(
     if NEGATIVEPROMPT:
         neg_prompt = f"{NEGATIVEPROMPT}, {neg_prompt}"
 
+    logging.info(f"primary_prompt={prompt}, secondary_prompt={neg_prompt}, width={width}, height={height}, seed={seed}, sampler={sampler}, hypernetwork={hypernetwork}, hypernetwork_str={hypernetwork_str}, denoising={denoising}")
+
     # TODO config for parameters
     # edit default steps and CFG scale here
 
@@ -71,10 +73,14 @@ async def generate_image(
 
     data.update(override_data)
 
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url, headers=headers, json=data) as resp:
-            return await resp.json()
-        
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=headers, json=data) as resp:
+                return await resp.json()
+    except Exception as e:
+        # Handle any errors that occurred during the API call
+        return logging.exception(e)
+            
 async def interrupt():
     async with aiohttp.ClientSession() as session:
         async with session.post(f"{URL}/sdapi/v1/interrupt") as result:
