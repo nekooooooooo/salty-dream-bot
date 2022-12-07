@@ -88,7 +88,7 @@ class Extras(commands.Cog):
 
         await ctx.response.defer()
 
-        # check if image is valid
+        # Check if the provided image URL or attachment is valid
         #! this implementation is extremely ugly and dirty, need to find a better way
         new_image_url = await extras.check_image(ctx, image_url, image_attachment)
 
@@ -97,16 +97,21 @@ class Extras(commands.Cog):
         
         await ctx.followup.send(f"Getting info...")
         
+        # Retrieve the image data from the URL
         image, file = await extras.get_image_from_url(new_image_url)
 
+        # Encode the image data as a base64 string
         image_b64 = base64.b64encode(image).decode('utf-8')
+
+        # Retrieve information about the PNG image
         output = await extras.pnginfo(image_b64)
+
+        if png_info == '':
+            png_info = "No info found"
 
         png_info = output['info']
         self.bot.logger.info(png_info)
 
-        if png_info == '':
-            png_info = "No info found"
 
         embed = discord.Embed(
             color=discord.Colour.random(),
