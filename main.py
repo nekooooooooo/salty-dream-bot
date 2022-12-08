@@ -24,6 +24,8 @@ bot.logger = logging.getLogger(__name__)
 def load_cogs():
     for file in os.listdir("./cogs"):
         if file.endswith(".py"):
+            if file == "tempCodeRunnerFile.py":
+                continue
             bot.logger.info(f"Loading {file}")
             bot.load_extension(f"cogs.{file[:-3]}")
             bot.logger.info(f"Loaded {file}")

@@ -10,6 +10,7 @@ from discord.ext import commands, tasks
 from discord.ui import Button, View
 from modules import generate_image
 from modules import values, extras
+from PIL import Image
 
 class Dream(commands.Cog):
 
@@ -276,8 +277,8 @@ class Dream(commands.Cog):
         # Encode the input image as a base64 string
         input_image_b64 = base64.b64encode(input_image).decode('utf-8')
 
-        image_height = image_attachment.height
-        image_width = image_attachment.width
+        image = Image.open(io.BytesIO(input_image))
+        image_width, image_height = image.size
 
         # Determine the orientation of the image
         if not orientation:
@@ -330,7 +331,10 @@ class Dream(commands.Cog):
         message = f"Generating ``{prompt}``..."
         
         view = View(interrupt_button)
-        await ctx.followup.send(message, view=view, file=file if file else None)
+        if file:
+            await ctx.followup.send(message, view=view, file=file)
+        else:
+            await ctx.followup.send(message, view=view)
 
         async def interrupt_button_callback(interaction):
             # check for author

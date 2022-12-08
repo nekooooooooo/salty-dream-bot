@@ -11,6 +11,7 @@ from discord.ext import commands, tasks
 from discord.ui import Button, View
 from modules import generate_image
 from modules import values, extras
+from PIL import Image
 
 
 class Friends(commands.Cog):
@@ -120,8 +121,11 @@ class Friends(commands.Cog):
         input_image, file = await extras.get_image_from_url(new_image_url)
         input_image_b64 = base64.b64encode(input_image).decode('utf-8')
 
-        image_height = image_attachment.height
-        image_width = image_attachment.width
+        # image_height = image_attachment.height
+        # image_width = image_attachment.width
+
+        image = Image.open(io.BytesIO(input_image))
+        image_width, image_height = image.size
 
         # Determine the orientation of the image
         if not orientation:
