@@ -277,8 +277,8 @@ class Dream(commands.Cog):
         # Encode the input image as a base64 string
         input_image_b64 = base64.b64encode(input_image).decode('utf-8')
 
-        image = Image.open(io.BytesIO(input_image))
-        image_width, image_height = image.size
+        with Image.open(io.BytesIO(input_image)) as image:
+            image_width, image_height = image.size
 
         # Determine the orientation of the image
         if not orientation:

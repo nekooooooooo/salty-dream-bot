@@ -124,8 +124,8 @@ class Friends(commands.Cog):
         # image_height = image_attachment.height
         # image_width = image_attachment.width
 
-        image = Image.open(io.BytesIO(input_image))
-        image_width, image_height = image.size
+        with Image.open(io.BytesIO(input_image)) as image:
+            image_width, image_height = image.size
 
         # Determine the orientation of the image
         if not orientation:
