@@ -343,10 +343,13 @@ Seed: {seed}"""
         image_b64 = image_b64.replace("data:image/png;base64,", "")
 
         image_info = json.loads(output["info"])
-        image_width, image_height = image_info["width"], image_info["height"]
-        image_seed, image_sampler = image_info["seed"], image_info["sampler_name"]
-        image_scale, image_steps = image_info["cfg_scale"], image_info["steps"]
-        image_neg_prompt = image_info["negative_prompt"]    
+        image_width = image_info["width"]
+        image_height = image_info["height"]
+        image_seed = image_info["seed"]
+        image_sampler = image_info["sampler_name"]
+        image_scale = image_info["cfg_scale"]
+        image_steps = image_info["steps"]
+        image_neg_prompt = image_info["negative_prompt"]
 
         # decode image from base64
         decoded_image = io.BytesIO(base64.b64decode(image_b64))
@@ -380,9 +383,8 @@ Seed: {seed}"""
         for name, value, inline in fields:
             embed.add_field(name=name, value=value, inline=inline)
 
-        # set the footer for the embed object
         embed.set_footer(text="Salty Dream Bot | AUTOMATIC1111 | Stable Diffusion",
-                        icon_url=self.bot.user.avatar.url)
+                         icon_url=self.bot.user.avatar.url)
 
         return image_b64, embed
         # return image, embed, image_b64, filename
