@@ -126,9 +126,31 @@ class Friends(commands.Cog):
 
         with Image.open(io.BytesIO(input_image)) as image:
             image_width, image_height = image.size
+        
+        dimensions = values.sizes[size]['dimensions']
 
-        # Determine the orientation of the image
-        if not orientation:
+        # old way of determining set sizes
+        # # Determine the orientation of the image
+        # if not orientation:
+
+        #     # Compare the image height and width
+        #     if image_height > image_width:
+        #         orientation = "portrait"
+        #     elif image_height < image_width:
+        #         orientation = "landscape"
+        #     else:
+        #         orientation = "square"
+
+        #     # Calculate the aspect ratio
+        #     aspect_ratio = abs(max(image_width, image_height) / min(image_width, image_height))
+        #     # Check if the aspect ratio is close to 1 (indicating a square image)
+        #     if (aspect_ratio - 1) < 0.2:
+        #         orientation = "square"
+
+        aspect_ratio = abs(max(image_width, image_height) / min(image_width, image_height))
+        # Check if the aspect ratio is close to 1 (indicating a square image)
+        if (aspect_ratio - 1) > 1.0:
+            logging.info("Aspect ratio too large... using predefined dimensions")
             # Compare the image height and width
             if image_height > image_width:
                 orientation = "portrait"
@@ -137,17 +159,17 @@ class Friends(commands.Cog):
             else:
                 orientation = "square"
 
-            # Calculate the aspect ratio
-            aspect_ratio = abs(max(image_width, image_height) / min(image_width, image_height))
-            # Check if the aspect ratio is close to 1 (indicating a square image)
-            if (aspect_ratio - 1) < 0.2:
-                orientation = "square"
+        print(orientation)
 
-        # get dimensions and ratio from values.py dictionaries
-        # TODO need to find a better way to store these values
-        dimensions = values.sizes[size]['dimensions']
-        ratio_width = values.orientation[orientation]['ratio_width']
-        ratio_height = values.orientation[orientation]['ratio_height']
+        new_width, new_height = None, None
+        ratio_width, ratio_height = None, None
+        if not orientation:
+            new_width, new_height = extras.aproxx_image_dim(image_width, image_height, dimensions)
+        else:
+            # get dimensions and ratio from values.py dictionaries
+            # TODO need to find a better way to store these values
+            ratio_width = values.orientation[orientation]['ratio_width']
+            ratio_height = values.orientation[orientation]['ratio_height']
 
         logging.info("Interrogating")
         await ctx.followup.send("Interrogating...")
@@ -183,7 +205,8 @@ class Friends(commands.Cog):
             ratio_height, seed, 
             sampler, None, 
             None, input_image_b64,
-            denoising, file)
+            denoising, file,
+            new_width, new_height)
 
         self.is_generating = False
         await ctx.interaction.edit_original_response(
@@ -199,7 +222,8 @@ class Friends(commands.Cog):
             ratio_height, seed, 
             sampler, hypernetwork, 
             hypernetwork_str, image_b64=None,
-            denoising=None, file=None):
+            denoising=None, file=None,
+            width=None, height=None):
 
         # TODO move interrupt button view into subclass then override interraction check
         interrupt_button = Button(label="Interrupt", style=discord.ButtonStyle.secondary, emoji="❌")
@@ -223,8 +247,9 @@ class Friends(commands.Cog):
         start = time.time()
 
         # calculate image width and height based on selected dimensions and orientation
-        width = dimensions * ratio_width
-        height = dimensions * ratio_height
+        if not width and not height:
+            width = dimensions * ratio_width
+            height = dimensions * ratio_height
 
         log_message = f"""Generating Image
 Prompt: {prompt}

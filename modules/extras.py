@@ -5,6 +5,7 @@ import io
 import aiohttp
 import discord
 import logging
+import math
 from urllib.parse import urlparse
 from modules import values
 
@@ -98,4 +99,23 @@ def error_embed(title, desc):
             description=desc
         )
         return embed
+
+def aproxx_image_dim(width, height, target):
+    # Calculate the aspect ratio of the image
+    aspect_ratio = max(width, height) / min(width, height)
+
+    # Calculate the new width and height of the image
+    if width < height:
+        new_width = target
+        new_height = math.floor(new_width * aspect_ratio)
+    else:
+        new_height = target
+        new_width = math.floor(new_height * aspect_ratio)
+
+    # Make sure that the new width and height are divisible by 64
+    new_width = math.ceil(new_width / 64) * 64
+    new_height = math.ceil(new_height / 64) * 64
+
+    # Return the new width and height of the image as a tuple
+    return new_width, new_height
 
