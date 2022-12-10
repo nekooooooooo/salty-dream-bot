@@ -148,10 +148,8 @@ class Friends(commands.Cog):
         #         orientation = "square"
 
         aspect_ratio = abs(max(image_width, image_height) / min(image_width, image_height))
-        # Check if the aspect ratio is close to 1 (indicating a square image)
         if (aspect_ratio - 1) > 1.0:
-            logging.info("Aspect ratio too large... using predefined dimensions")
-            # Compare the image height and width
+            self.bot.logger.info("Aspect ratio too large... using predefined dimensions")
             if image_height > image_width:
                 orientation = "portrait"
             elif image_height < image_width:
@@ -171,28 +169,23 @@ class Friends(commands.Cog):
             ratio_width = values.orientation[orientation]['ratio_width']
             ratio_height = values.orientation[orientation]['ratio_height']
 
-        logging.info("Interrogating")
+        self.bot.logger.info("Interrogating")
         await ctx.followup.send("Interrogating...")
         output = await extras.interrogate(input_image_b64, model)
 
         interrogated_prompt = f"{output['caption']}"
-        # print the original interrogated prompt
-        logging.info(f"Interrogated: {interrogated_prompt}")
-        # split the prompt into a list of words, using ", " as the delimiter
+        self.bot.logger.info(f"Interrogated: {interrogated_prompt}")
         words = interrogated_prompt.split(", ")
-        # create a list of words that will be removed from the prompt
+        # list of words that will be removed from the prompt
         words_to_remove = [
             "lips", "photorealistic", "realistic", 
             "nose", "blurry", 
             "3d", "long fingernails", "fingernails"]
-        # print the list of words that will be removed
-        logging.info(f"Removing: {words_to_remove}")
-        # create a new list of words by only keeping those words that are not in words_to_remove
+        self.bot.logger.info(f"Removing: {words_to_remove}")
+        # iterate over words that only contains elements from words that are not in words_to_remove
         resultwords = [word for word in words if word.lower() not in words_to_remove]
-        # combine the resulting words into a string, using ", " as the delimiter
         result =  ', '.join(resultwords)
-        # print the final prompt
-        logging.info(f"New Prompt: {result}")
+        self.bot.logger.info(f"New Prompt: {result}")
         
         prompt = f"{result}, {prompt}" if prompt else f"{result}"
 
