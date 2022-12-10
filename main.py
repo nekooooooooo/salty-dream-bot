@@ -22,13 +22,17 @@ bot.logger = logging.getLogger(__name__)
 
 
 def load_cogs():
-    for file in os.listdir("./cogs"):
-        if file.endswith(".py"):
-            if file == "tempCodeRunnerFile.py":
-                continue
-            bot.logger.info(f"Loading {file}")
-            bot.load_extension(f"cogs.{file[:-3]}")
-            bot.logger.info(f"Loaded {file}")
+    # Get a list of all files ending with ".py" in the "./cogs" directory
+    files = [
+        file for file in os.listdir("./cogs") 
+        if file.endswith(".py") and file != "tempCodeRunnerFile.py"
+    ]
+    
+    # Iterate over the list of files
+    for file in files:
+        bot.logger.info(f"Loading {file}")
+        bot.load_extension(f"cogs.{file[:-3]}")
+        bot.logger.info(f"Loaded {file}")
 
 
 @bot.event
