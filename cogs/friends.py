@@ -129,24 +129,6 @@ class Friends(commands.Cog):
         
         dimensions = values.sizes[size]['dimensions']
 
-        # old way of determining set sizes
-        # # Determine the orientation of the image
-        # if not orientation:
-
-        #     # Compare the image height and width
-        #     if image_height > image_width:
-        #         orientation = "portrait"
-        #     elif image_height < image_width:
-        #         orientation = "landscape"
-        #     else:
-        #         orientation = "square"
-
-        #     # Calculate the aspect ratio
-        #     aspect_ratio = abs(max(image_width, image_height) / min(image_width, image_height))
-        #     # Check if the aspect ratio is close to 1 (indicating a square image)
-        #     if (aspect_ratio - 1) < 0.2:
-        #         orientation = "square"
-
         aspect_ratio = abs(max(image_width, image_height) / min(image_width, image_height))
         if (aspect_ratio - 1) > 1.0:
             self.bot.logger.info("Aspect ratio too large... using predefined dimensions")
@@ -269,8 +251,6 @@ Seed: {seed}"""
         image_info = json.loads(output["info"])
         image_width = image_info["width"]
         image_height = image_info["height"]
-        # regex for getting image seed from old api
-        # imageSeed = re.search(r"(\bSeed:\s+)(\S[^,]+)", imageInfo)
         image_seed = image_info["seed"]
         image_sampler = image_info["sampler_name"]
         image_scale = image_info["cfg_scale"]
