@@ -16,33 +16,33 @@ headers = {
 }
 
 async def interrogate(image, model):
-    data = json.dumps({
+    data = {
         "image": f"data:image/png;base64,{image}",
         "model": model
-    })
+    }
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(f"{URL}/sdapi/v1/interrogate", headers=headers, data=data) as resp:
+        async with session.post(f"{URL}/sdapi/v1/interrogate", headers=headers, json=data) as resp:
             return await resp.json()
 
 async def upscale(image, upscale_size, model):
-    data = json.dumps({
+    data = {
         "upscaling_resize": upscale_size,
         "upscaler_1": model,
         "image": f"data:image/png;base64,{image}"
-    })
+    }
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(f"{URL}/sdapi/v1/extra-single-image", headers=headers, data=data) as resp:
+        async with session.post(f"{URL}/sdapi/v1/extra-single-image", headers=headers, json=data) as resp:
             return await resp.json()
         
 async def pnginfo(image):
-    data = json.dumps({
+    data = {
         "image": f"data:image/png;base64,{image}"
-    })
+    }
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(f"{URL}/sdapi/v1/png-info", headers=headers, data=data) as resp:
+        async with session.post(f"{URL}/sdapi/v1/png-info", headers=headers, json=data) as resp:
             return await resp.json()
         
 async def progress():
@@ -116,6 +116,5 @@ def aproxx_image_dim(width, height, target):
     new_width = math.ceil(new_width / 64) * 64
     new_height = math.ceil(new_height / 64) * 64
 
-    # Return the new width and height of the image as a tuple
     return new_width, new_height
 
