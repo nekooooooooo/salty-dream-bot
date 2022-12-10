@@ -109,39 +109,6 @@ class Dream(commands.Cog):
             ratio_height, seed, 
             sampler, hypernetwork, 
             hypernetwork_str)
-       
-
-        #! fix this sht
-        # image, embed, image_b64, filename = await self.generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler)
-
-        # upscale_2x_button = Button(label="Upscale 2x", style=discord.ButtonStyle.secondary)
-        # upscale_4x_button = Button(label="Upscale 4x", style=discord.ButtonStyle.secondary)
-        # regenerate_button = Button(                    style=discord.ButtonStyle.secondary, emoji="🔄")
-        # save_button       = Button(                    style=discord.ButtonStyle.secondary, emoji="💾")
-
-        # # TODO subclass views and buttons
-        # view = View(upscale_2x_button, upscale_4x_button, regenerate_button, save_button)
-
-        # # TODO refactor this ugly code, disable buttons when pressed
-        # async def upscale_2x_button_callback(interaction):
-        #     upscale_size = 2
-        #     await upscale_button(interaction, upscale_size, image_b64, filename)
-
-        # async def upscale_4x_button_callback(interaction):
-        #     upscale_size = 4
-        #     await upscale_button(interaction, upscale_size, image_b64, filename)
-            
-        # async def regeneration_callback(interaction):
-        #     await interaction.response.defer()
-        #     interaction.response.edit_message_response()
-        #     image, embed, _, _ = await generate_image(ctx, prompt, neg_prompt, orientation, dimensions, ratio_width, ratio_height, seed, sampler)
-        #     await interaction.followup.send(embed=embed, file=image, view=view)
-
-        # upscale_2x_button.callback = upscale_2x_button_callback
-        # upscale_4x_button.callback = upscale_4x_button_callback
-        # regenerate_button.callback = regeneration_callback
-
-        # await ctx.followup.send(embed=embed, file=image, view=view)
 
         self.is_generating = False
         await ctx.interaction.edit_original_response(
