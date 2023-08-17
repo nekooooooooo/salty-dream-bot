@@ -114,11 +114,17 @@ class Friends(commands.Cog):
 
         new_image_url = await extras.check_image(ctx, image_url, image_attachment)
 
-        if new_image_url is None:
+        if not new_image_url:
             self.is_generating = False
-            return 
+            return
 
         input_image, file = await extras.get_image_from_url(new_image_url)
+
+        if not input_image and not file:
+            self.is_generating = False
+            embed = extras.error_embed("", "An error has occured...")
+            return await ctx.followup.send(embed=embed, ephemeral=True)
+
         input_image_b64 = base64.b64encode(input_image).decode('utf-8')
 
         # image_height = image_attachment.height

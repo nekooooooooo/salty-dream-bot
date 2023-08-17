@@ -79,16 +79,19 @@ async def check_image(ctx, image_url, image_attachment):
     return image_url
 
 async def get_image_from_url(image_url):
-    # TODO find a better way to convert image to a discord file
+    # Get the filename from the URL
+    parsed_image_url = urlparse(image_url)
+    filename = os.path.basename(parsed_image_url.path)
+
     # get image from url then send it as discord.file
     async with aiohttp.ClientSession() as session:
-        async with session.get(image_url) as resp:
-            image = await resp.read()
-            with io.BytesIO(image) as img:
-                # get filename from url
-                a = urlparse(image_url)
-                filename = os.path.basename(a.path)
-                file = discord.File(img, filename=filename)
+        try:
+            async with session.get(image_url) as resp:
+                image = await resp.read()
+                file = discord.File(io.BytesIO(image), filename=filename)
+        except aiohttp.ClientError as e:
+            logging.error(f"Error getting image from URL: {e}")
+            return None, None
 
     return image, file
 
