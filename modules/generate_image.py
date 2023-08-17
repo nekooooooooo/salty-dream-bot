@@ -11,12 +11,11 @@ NEGATIVEPROMPT = os.getenv('NEGATIVEPROMPT')
 # TODO place these in a config file at some point
 batch_size = 1
 steps = 28
-cfg_scale = 12
 
 async def generate_image(
     prompt, neg_prompt, 
     width: int, height: int, 
-    seed: int, sampler, 
+    seed: int, sampler, cfg_scale,
     hypernetwork=None, hypernetwork_str=None, 
     image=None, denoising=0.6):
 
@@ -24,7 +23,7 @@ async def generate_image(
         prompt = f"{DEFAULTPROMPT}, {prompt}"
 
     if NEGATIVEPROMPT:
-        neg_prompt = f"{NEGATIVEPROMPT}, {neg_prompt}"
+        neg_prompt = f"{NEGATIVEPROMPT}, {neg_prompt}" if neg_prompt else NEGATIVEPROMPT
 
     logging.info(f"primary_prompt={prompt}, secondary_prompt={neg_prompt}, width={width}, height={height}, seed={seed}, sampler={sampler}, hypernetwork={hypernetwork}, hypernetwork_str={hypernetwork_str}, denoising={denoising}")
 
