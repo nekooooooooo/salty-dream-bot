@@ -63,6 +63,14 @@ class Dream(commands.Cog):
         choices=values.samplers,
     )
     @option(
+        "cfg",
+        float,
+        description="CFG Scale",
+        required=False,
+        min_value=0.0,
+        max_value=15.0
+    )
+    @option(
         "hypernetwork",
         str,
         description="Select hypernetwork (leave empty for default)",
@@ -85,6 +93,7 @@ class Dream(commands.Cog):
             size: str = "normal",
             seed: int = -1,
             sampler: str = "Euler a",
+            cfg: float = 12,
             hypernetwork: str = None,
             hypernetwork_str: float = None
         ):
@@ -107,7 +116,7 @@ class Dream(commands.Cog):
             neg_prompt, orientation, 
             dimensions, ratio_width, 
             ratio_height, seed, 
-            sampler, hypernetwork, 
+            sampler, cfg, hypernetwork, 
             hypernetwork_str)
 
         self.is_generating = False
@@ -213,7 +222,7 @@ class Dream(commands.Cog):
             orientation: str = None,
             size: str = "normal",
             seed: int = -1,
-            sampler: str = "Euler a",
+            sampler: str = "DPM++ 2M Karras",
             hypernetwork: str = None,
             hypernetwork_str: float = None,
         ):
@@ -294,7 +303,7 @@ class Dream(commands.Cog):
             neg_prompt, orientation, 
             dimensions, ratio_width, 
             ratio_height, seed, 
-            sampler, hypernetwork, 
+            sampler, cfg, hypernetwork, 
             hypernetwork_str, image_b64=None,
             denoising=None, file=None):
 
@@ -338,7 +347,7 @@ Seed: {seed}"""
         output = await generate_image.generate_image(
             prompt, neg_prompt, 
             width, height, 
-            seed, sampler, 
+            seed, sampler, cfg,
             hypernetwork, hypernetwork_str,
             image_b64, denoising)
 
@@ -356,6 +365,7 @@ Seed: {seed}"""
         image_scale = image_info["cfg_scale"]
         image_steps = image_info["steps"]
         image_neg_prompt = image_info["negative_prompt"]
+        image_model_hash = image_info["sd_model_hash"]
 
         # decode image from base64
         decoded_image = io.BytesIO(base64.b64decode(image_b64))
@@ -383,6 +393,7 @@ Seed: {seed}"""
             ("⚖ CFG Scale", f"```{image_scale}```", True),
             ("👣 Steps", f"```{image_steps}```", True),
             ("⏱ Elapsed Time", f"```{elapsed_time:.2f} second/s```", True),
+            ("🔢 Model Hash", f"```{image_model_hash}```", True),
         ]
 
         # add the fields to the embed object using a loop
