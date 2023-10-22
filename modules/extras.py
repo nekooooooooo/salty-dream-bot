@@ -51,30 +51,28 @@ async def progress():
             return await resp.json()
 
 async def check_image(ctx, image_url, image_attachment):
-    # check if image url is valid
-    if image_url:
-        async with aiohttp.ClientSession() as session:
-            try:
-                async with session.get(image_url) as resp:
-                    if resp.status == 200:
-                        await resp.read()
-                    else:
-                        embed = error_embed("", "URL image not found...")
-                        await ctx.followup.send(embed=embed, ephemeral=True)
-                        return None
-            except aiohttp.ClientConnectorError as e:
-                logging.error('Connection Error', str(e))
-                return None
-    
     # checks if url is used otherwise use attachment
-    if image_url is None:
+    if not image_url:
         # checks if both url and attachment params are missing, then checks if attachment is an image
-        if image_attachment is None or image_attachment.content_type not in values.image_media_types:
+        if not image_attachment or image_attachment.content_type not in values.image_media_types:
             embed = error_embed("", "Please attach an image...")
             await ctx.followup.send(embed=embed, ephemeral=True)
             return None
 
-        image_url = image_attachment.url
+        return image_attachment.url
+    
+    # if image_url is provided, validate it
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.get(image_url) as resp:
+                if resp.status != 200:
+                    embed = error_embed("", "URL image not found...")
+                    await ctx.followup.send(embed=embed, ephemeral=True)
+                    return None
+                await resp.read()
+        except aiohttp.ClientConnectorError as e:
+            logging.error('Connection Error', str(e))
+            return None
 
     return image_url
 
