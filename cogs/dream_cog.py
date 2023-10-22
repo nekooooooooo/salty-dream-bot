@@ -18,7 +18,21 @@ class Dream(commands.Cog):
         self.bot = bot
         self.is_generating = False
 
+        self.queue = []
+
     dream = SlashCommandGroup("dream", "Generate Image!")
+
+    def generate_next(self):
+        if len(self.queue) > 0:
+            self.is_generating = True
+
+
+
+            self.queue.pop(0)
+
+        else:
+            self.is_generating = False
+
     
     @dream.command(name="txt2img", description="Generate image using text")
     @option(
@@ -105,11 +119,11 @@ class Dream(commands.Cog):
         ratio_width = values.orientation[orientation]['ratio_width']
         ratio_height = values.orientation[orientation]['ratio_height']
 
-        # TODO implement queue and remove this ugly fix
-        if self.is_generating:
-            return await ctx.followup.send(f"Generation in progress... Try again later")
+        # # TODO implement queue and remove this ugly fix
+        # if self.is_generating:
+        #     return await ctx.followup.send(f"Generation in progress... Try again later")
         
-        self.is_generating = True
+        # self.is_generating = True
 
         image, embed = await self.generate_image(
             ctx, prompt, 
@@ -119,7 +133,7 @@ class Dream(commands.Cog):
             sampler, cfg, hypernetwork, 
             hypernetwork_str)
 
-        self.is_generating = False
+        # self.is_generating = False
         await ctx.interaction.edit_original_response(
             content=f"Generated! {ctx.author.mention}",
             embed=embed, 
@@ -342,7 +356,7 @@ Composition: {orientation} ({width} x  {height})
 Seed: {seed}"""
         self.bot.logger.info(log_message)
         
-        self.progress.start(ctx, message)
+        # self.progress.start(ctx, message)
 
         output = await generate_image.generate_image(
             prompt, neg_prompt, 
@@ -351,7 +365,7 @@ Seed: {seed}"""
             hypernetwork, hypernetwork_str,
             image_b64, denoising)
 
-        self.progress.cancel()
+        # self.progress.cancel()
 
         # get generated image and related info from api request
         image_b64 = output["images"][0]

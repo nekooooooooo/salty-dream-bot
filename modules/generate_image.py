@@ -25,7 +25,7 @@ async def generate_image(
     if NEGATIVEPROMPT:
         neg_prompt = f"{NEGATIVEPROMPT}, {neg_prompt}" if neg_prompt else NEGATIVEPROMPT
 
-    logging.info(f"primary_prompt={prompt}, secondary_prompt={neg_prompt}, width={width}, height={height}, seed={seed}, sampler={sampler}, hypernetwork={hypernetwork}, hypernetwork_str={hypernetwork_str}, denoising={denoising}")
+    # logging.info(f"primary_prompt={prompt}, secondary_prompt={neg_prompt}, width={width}, height={height}, seed={seed}, sampler={sampler}, hypernetwork={hypernetwork}, hypernetwork_str={hypernetwork_str}, denoising={denoising}")
 
     # TODO config for parameters
     # edit default steps and CFG scale here
